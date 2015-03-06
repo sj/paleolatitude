@@ -28,6 +28,7 @@ echo ""
 echo -n "These commits will be attributed to '$username <$email>'. Would you like to continue (y/n)? "
 read -n1 response
 echo 
+echo 
 
 if [ "$response" = "y" ]; then
 	echo "Great. Hold on tight!"
