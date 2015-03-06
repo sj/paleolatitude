@@ -24,32 +24,34 @@ echo "Fetching latest data from remotes..."
 git fetch --quiet > /dev/null
 git checkout --quiet master > /dev/null
 
-diverge_rev=`git show-ref --abbrev --dereference --tags | grep 'tags/github-orphan-diverge^{}$' | cut -d " " -f 1`
-master_head_rev=`git rev-parse --short HEAD`
+# Ask Git which commits haven't been cherry picked from 'master' to 'github' yet:
+tmp_unpicked_commits=`mktemp`
+git cherry -v github HEAD github-orphan-diverge > "$tmp_unpicked_commits"
 
-username=`git config user.name`
-email=`git config user.email`
+if [ "`cat $tmp_unpicked_commits | grep '^+' | wc -l "$tmp_unpicked_commits"`" = "0" ]; then
+	# Not a single commit that can be picked
+	echo "No cherry-pickable commits found. Aborting"
+	rm "$tmp_unpicked_commits"
+	exit 1
+fi
 
-last_picked="$diverge_rev" # default: start at the very beginning where 'github' was orphaned from 'master'
-echo "Searching for last commit that was cherry picked from 'master'..."
+echo "The commits indicated with a '+' have not been cherry-picked from 'master' into 'github' yet:"
+cat "$tmp_unpicked_commits"
 
-last_picked=`git log --branches=github | grep "cherry picked from commit" | sed -n 's/.*\([a-z0-9]\{40\}\).*/\1/p' | head -n1`
+echo 
+echo "Would you like to cherry pick these commits (y/n)? "
 
-echo "Last picked commit from 'master': $last_picked"
-	
-
-echo "Will cherry pick the following commits from branch 'master' into 'github': "
-echo "     github-orphan-diverge...$master_head_rev  (= $diverge_rev...$master_head_rev)."
-echo ""
-echo -n "These commits will be attributed to '$username <$email>'. Would you like to continue (y/n)? "
 read -n1 response
 echo 
 echo 
 
+pick_commits=`cat "$tmp_unpicked_commits" | grep '^+' | sed -n 's/.*\([0-9a-f]\{40\}\).*/\1/p' | tr '\n' ' '`
+rm "$tmp_unpicked_commits"
+
 if [ "$response" = "y" ]; then
 	echo "Great. Hold on tight!"
 	git checkout github
-	git cherry-pick -x $diverge_rev...$master_head_rev 
+	git cherry-pick -x $pick_commits
 else
 	echo "Aborting."
 	exit 1
