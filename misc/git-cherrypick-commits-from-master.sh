@@ -14,6 +14,7 @@
 
 set -e
 
+echo "Fetching latest data from remotes..."
 git fetch --quiet > /dev/null
 git checkout --quiet master > /dev/null
 
