@@ -2,7 +2,7 @@
  * Util.cpp
  *
  *  Created on: 30 Jun 2014
- *      Author: bas
+ *      Author: Sebastiaan J. van Schaik
  */
 
 #include "Util.h"

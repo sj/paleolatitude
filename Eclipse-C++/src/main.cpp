@@ -2,7 +2,7 @@
 // Name        : main.cpp (part of PaleoLatitude)
 // Author      : Sebastiaan J. van Schaik
 // Copyright   : Sebastiaan J. van Schaik
-// Licence     : Apache 2.0
+// Licence     : GNU Lesser GPL 3.0
 // Description :
 //============================================================================
 #include "paleo_latitude/PaleoLatitude.h"

@@ -2,7 +2,7 @@
  * PLPolarWanderPaths.h
  *
  *  Created on: 30 Jun 2014
- *      Author: bas
+ *      Author: Sebastiaan J. van Schaik
  */
 
 #ifndef PLPOLARWANDERPATHS_H_

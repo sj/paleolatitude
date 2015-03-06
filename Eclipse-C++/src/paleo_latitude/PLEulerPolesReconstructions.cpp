@@ -2,7 +2,7 @@
  * PLEulerPolesReconstructions.cpp
  *
  *  Created on: 3 Jul 2014
- *      Author: bas
+ *      Author: Sebastiaan J. van Schaik
  */
 
 #include "PLEulerPolesReconstructions.h"

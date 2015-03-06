@@ -2,7 +2,7 @@
  * Logger.cpp
  *
  *  Created on: 29 Jun 2014
- *      Author: bas
+ *      Author: Sebastiaan J. van Schaik
  */
 
 #include "Logger.h"

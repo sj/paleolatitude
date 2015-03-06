@@ -2,7 +2,7 @@
  * Logger.h
  *
  *  Created on: 29 Jun 2014
- *      Author: bas
+ *      Author: Sebastiaan J. van Schaik
  */
 
 #ifndef LOGGER_H_

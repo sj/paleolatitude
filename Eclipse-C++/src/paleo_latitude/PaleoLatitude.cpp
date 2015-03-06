@@ -2,7 +2,7 @@
  * PaleoLatitude.cpp
  *
  *  Created on: 4 Jun 2014
- *      Author: bas
+ *      Author: Sebastiaan J. van Schaik
  */
 
 #include "../debugging-macros.h"

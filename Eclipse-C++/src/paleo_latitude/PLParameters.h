@@ -2,7 +2,7 @@
  * PaleoLatitudeParameters.h
  *
  *  Created on: 4 Jun 2014
- *      Author: bas
+ *      Author: Sebastiaan J. van Schaik
  */
 
 #ifndef PALEOLATITUDEPARAMETERS_H_
