@@ -44,7 +44,7 @@ echo "The commits indicated with a '+' have not been cherry-picked from 'master'
 cat "$tmp_unpicked_commits"
 
 echo 
-echo "Would you like to cherry pick these commits (y/n)? "
+echo "Would you like to cherry pick this/these `grep '^+' "$tmp_unpicked_commits" | wc -l` commit(s) (y/n)? "
 
 read -n1 response
 echo 
