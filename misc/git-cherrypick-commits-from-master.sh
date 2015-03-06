@@ -14,6 +14,7 @@
 
 set -e
 
+git fetch --quiet > /dev/null
 git checkout --quiet master > /dev/null
 
 diverge_rev=`git show-ref --abbrev --dereference --tags | grep 'tags/github-orphan-diverge^{}$' | cut -d " " -f 1`
