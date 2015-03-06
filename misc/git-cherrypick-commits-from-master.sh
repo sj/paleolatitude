@@ -54,7 +54,7 @@ pick_commits=`cat "$tmp_unpicked_commits" | grep '^+' | sed -n 's/.*\([0-9a-f]\{
 rm "$tmp_unpicked_commits"
 
 if [ "$response" = "y" ]; then
-	echo "Great. Hold on tight!"
+	echo "Great. Hold on tight - handing you over to Git!"
 	git checkout github
 	git cherry-pick -x $pick_commits
 else
@@ -62,4 +62,6 @@ else
 	exit 1
 fi
 
-echo "You are now on branch: `git rev-parse --abbrev-ref HEAD`. Goodbye."
+echo ""
+echo "You are now on branch: `git rev-parse --abbrev-ref HEAD`. You might want to push your changes to GitHub?"
+echo "Goodbye."
