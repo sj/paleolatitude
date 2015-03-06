@@ -379,7 +379,7 @@ double PaleoLatitude::_rad2deg(const double& rad){
 void PaleoLatitude::printAbout() {
 	cout << "This is PaleoLatitude version " << PALEOLATITUDE_VERSION << " (http://www.paleolatitude.org)" << endl;
 	cout << "Implementation by Sebastiaan J. van Schaik (sjvs@traiectum.net)" << endl;
-	cout << "Source code licensed under the Apache Licence (version 2.0)"<< endl << endl;
+	cout << "Source code licensed under the GNU Lesser GPL (LGPL) version 3.0"<< endl << endl;
 
 	cout << "Please cite:" << endl;
 	cout << "  Douwe J.J. van Hinsbergen, Lennart V. de Groot, Sebastiaan J. van Schaik," << endl;

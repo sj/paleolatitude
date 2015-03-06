@@ -68,8 +68,6 @@ int main(int argc, char* argv[]) {
 	// Values of command-line parameters (through Boost Program Options library)
 	bpo::variables_map cmdline_params_values;
 
-	// TODO: check description of 'input-euler-rotation-csv' with Douwe
-
 	bpo::options_description cmdline_params_spec ("PaleoLatitude parameters");
 	cmdline_params_spec.add_options()
 		("help", "print usage and help information")
