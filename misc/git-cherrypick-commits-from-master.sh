@@ -28,9 +28,9 @@ git checkout --quiet master > /dev/null
 tmp_unpicked_commits=`mktemp`
 git cherry -v github HEAD github-orphan-diverge > "$tmp_unpicked_commits"
 
-if [ "`cat $tmp_unpicked_commits | grep '^+' | wc -l "$tmp_unpicked_commits"`" = "0" ]; then
+if [ "`cat $tmp_unpicked_commits | grep '^+' | wc -l`" = "0" ]; then
 	# Not a single commit that can be picked
-	echo "No cherry-pickable commits found. Aborting"
+	echo "No cherry-pickable commits found. Aborting."
 	rm "$tmp_unpicked_commits"
 	exit 1
 fi
