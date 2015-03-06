@@ -1,16 +1,22 @@
 #!/bin/bash
 #
-# GitHub does not contain a full history of the Paleolatitude model because of licensing issues. The 'github' branch
-# is an orphan branch based on the 'master' branch, which does not exist on GitHub.
+# GitHub does not contain a full history of the Paleolatitude model because of
+# licensing issues. The 'github' branch is an orphan branch based on the
+# 'master' branch, which does not exist on GitHub.
 #
-# The rationale behind this set-up is:
-#  - full revision history still available off-site on 'master' (and other) branch
-#  - latest version publicly available on GitHub through 'github' branch
-#  - pull requests on 'github' branch can be processed through GitHub
+# The rationale behind this set-up is: - full revision history still available
+# off-site on 'master' (and other) branch - latest version publicly available
+# on GitHub through 'github' branch - pull requests on 'github' branch can be
+# processed through GitHub
 #
-# Unfortunately, this means that commits on 'master' can only be merged into the 'github' branch by cherry picking those commits (a regular merge or rebase would re-introduce the full history of 'master' on the 'github' branch). The two branches operate completely independently from eachother, with no common parents.
+# Unfortunately, this means that commits on 'master' can only be merged into
+# the 'github' branch by cherry picking those commits (a regular merge or
+# rebase would re-introduce the full history of 'master' on the 'github'
+# branch). The two branches operate completely independently from eachother,
+# with no common parents.
 #
-# This script attempts to solve this issue by cherry picking all commits from 'master' into 'github'
+# This script attempts to solve this issue by cherry picking all commits from
+# 'master' into 'github'
 
 set -e
 
