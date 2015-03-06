@@ -21,8 +21,13 @@
 set -e
 
 echo "Fetching latest data from remotes..."
-git fetch --quiet > /dev/null
+git remote update > /dev/null
 git checkout --quiet master > /dev/null
+
+if [ ! "`git log HEAD..origin/master --oneline | wc -l`" = "0" ]; then
+	echo "Your local branch 'master' is not up-to-date with 'origin/master'. Please fix that first. Aborting." >& 2
+	exit 1
+fi
 
 # Ask Git which commits haven't been cherry picked from 'master' to 'github' yet:
 tmp_unpicked_commits=`mktemp`
