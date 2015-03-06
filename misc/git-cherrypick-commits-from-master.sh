@@ -30,6 +30,14 @@ master_head_rev=`git rev-parse --short HEAD`
 username=`git config user.name`
 email=`git config user.email`
 
+last_picked="$diverge_rev" # default: start at the very beginning where 'github' was orphaned from 'master'
+echo "Searching for last commit that was cherry picked from 'master'..."
+
+last_picked=`git log --branches=github | grep "cherry picked from commit" | sed -n 's/.*\([a-z0-9]\{40\}\).*/\1/p' | head -n1`
+
+echo "Last picked commit from 'master': $last_picked"
+	
+
 echo "Will cherry pick the following commits from branch 'master' into 'github': "
 echo "     github-orphan-diverge...$master_head_rev  (= $diverge_rev...$master_head_rev)."
 echo ""
