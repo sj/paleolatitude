@@ -93,6 +93,12 @@ public:
 	void writeKML(ostream& output_stream);
 
 	/**
+	 * Returns all entries that were relevant to the paleolatitude computation. For example, when requesting a range with
+	 * interpolated boundaries, the values before and after the relevant data points will be returned as well.
+	 */
+	const vector<PaleoLatitudeEntry> getRelevantPaleolatitudeEntries() const;
+
+	/**
 	 * Returns the main paleolatitude result (age, paleolatitude, lower bound, upper bound).
 	 * Cannot be called when the paleolatitude of all ages is requested.
 	 */

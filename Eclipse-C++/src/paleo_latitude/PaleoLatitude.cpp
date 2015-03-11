@@ -149,15 +149,15 @@ bool PaleoLatitude::compute(){
 				_result.push_back(interpolated);
 			}
 
-			if (age_max_myr > curr_age_myr && age_max_myr < next_age_myr){
-				// age_max in between current and next age - interpolate
-				PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_max_years);
-				_result.push_back(interpolated);
-			}
-
 			if (age_myr > curr_age_myr && age_myr < next_age_myr){
 				// requested age in between current and next age - interpolate
 				PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_years);
+				_result.push_back(interpolated);
+			}
+
+			if (age_max_myr > curr_age_myr && age_max_myr < next_age_myr){
+				// age_max in between current and next age - interpolate
+				PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_max_years);
 				_result.push_back(interpolated);
 			}
 
@@ -434,6 +434,10 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::PaleoLatitudeEntry::interpolate
 
 void PaleoLatitude::_requireResult() const {
 	if (_result.size() == 0) throw Exception("PaleoLatitude not computed - call compute() first");
+}
+
+const vector<PaleoLatitude::PaleoLatitudeEntry> PaleoLatitude::getRelevantPaleolatitudeEntries() const {
+	return _result;
 }
 
 /**
