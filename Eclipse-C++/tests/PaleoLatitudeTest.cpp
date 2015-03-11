@@ -77,6 +77,36 @@ TEST_F(PaleoLatitudeTest, TestParameterValidation){
 	ASSERT_TRUE(pl_params->validate()) << "Parameter validation should have passed: valid age and age-pm specified";
 }
 
+
+/**
+ * Verifies whether the data points are returned in the correct order (i.e., sorted by age, most recent data point first)
+ */
+TEST_F(PaleoLatitudeTest, TestDateOrder){
+	PLParameters* params = new PLParameters();
+	params->age = 51.5;
+	params->age_min = 48;
+	params->age_max = 55;
+	params->site_latitude = 53.5;
+	params->site_longitude = 73.5;
+	params->all_ages = false;
+
+	PaleoLatitude pl(params);
+	pl.compute();
+
+	auto relEntries = pl.getRelevantPaleolatitudeEntries();
+	for (unsigned int i = 0; i < relEntries.size() - 1; i++){ // deliberate size() - 1: always looking forward 1 item
+		ASSERT_LT(relEntries[i].age_years, relEntries[i+1].age_years) << "Paleolatitude entries returned in wrong order";
+	}
+
+	// Just make sure that there is at least one entry to the left, and one to the right of the bounds
+	ASSERT_LE(relEntries[0].getAgeInMIY(), params->age_min) << "Computation did not return entry on/outside lower age bound of " << params->age_min;
+	ASSERT_GE(relEntries[relEntries.size() - 1].getAgeInMIY(), params->age_max) << "Computation did not return entry on/outside lower age bound of " << params->age_max;
+
+
+	delete params;
+}
+
+
 void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_lower, double expected_pl_upper){
 	PLParameters* pl_params = new PLParameters();
 	pl_params->all_ages = true;
