@@ -393,6 +393,10 @@ double PaleoLatitude::_rad2deg(const double& rad){
 	return rad * (180.0 / M_PI);
 }
 
+void PaleoLatitude::printVersion(){
+	cout << "PaleoLatitude " << PALEOLATITUDE_VERSION << endl;
+}
+
 void PaleoLatitude::printAbout() {
 	cout << "This is PaleoLatitude version " << PALEOLATITUDE_VERSION << " (http://www.paleolatitude.org)" << endl;
 	cout << "Implementation by Sebastiaan J. van Schaik (sjvs@traiectum.net)" << endl;

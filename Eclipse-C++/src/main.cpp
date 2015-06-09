@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
 	cmdline_params_spec.add_options()
 		("help", "print usage and help information")
 		("about", "print information about PaleoLatitude and exit")
+		("version", "print model version number and exit")
 		("site-lat", bpo::value<double>(&pl_params->site_latitude), "sets the site latitude")
 		("site-lon", bpo::value<double>(&pl_params->site_longitude), "sets the site longitude")
 		("age", bpo::value<double>(&pl_params->age), "set the desired age (in million years)")
@@ -126,6 +127,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	pl_params->all_ages = (cmdline_params_values.count("all-ages") > 0);
+
+	if (cmdline_params_values.count("version") > 0){
+		// Print version and exit
+		PaleoLatitude::printVersion();
+		exit(0);
+	}
 
 	if (cmdline_params_values.count("skip-about") == 0) PaleoLatitude::printAbout();
 
