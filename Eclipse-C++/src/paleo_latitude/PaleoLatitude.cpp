@@ -335,7 +335,7 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRangeFor
 	const double lambda_rad = atan(lambda_numerator / lambda_denominator);
 
 	// Uncertainty in paleolatitude
-	const double delta_i = a95 * 2.0 / (1 + 3 * pow(cos(M_PI - lambda_rad), 2.0));
+	const double delta_i = a95 * 2.0 / (1 + 3 * pow(cos(0.5*M_PI - lambda_rad), 2.0));
 	const double delta_i_rad = _deg2rad(delta_i);
 	__IF_DEBUG(Logger::debug << "Λ = " << lambda_rad << " (radians), Δ_I = " << delta_i << " degrees, Δ_I = " << delta_i_rad << " radians" << endl;)
 

@@ -144,15 +144,15 @@ void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_
  */
 
 TEST_F(PaleoLatitudeTest, TestCapetown){
-	testLocation(-33.925278, 18.423889, -56, -25);
+	testLocation(-33.925278, 18.423889, -56, -21);
 }
 
 TEST_F(PaleoLatitudeTest, TestAntananarivoMadagascar){
-	testLocation(-18.933333, 47.516667, -56, -18.5);
+	testLocation(-18.933333, 47.516667, -56, -16);
 }
 
 TEST_F(PaleoLatitudeTest, TestNewDelhi){
-	testLocation(28.613889, 77.208889, -63, 30);
+	testLocation(28.613889, 77.208889, -63, 32);
 }
 
 TEST_F(PaleoLatitudeTest, TestNuuk){
@@ -160,7 +160,7 @@ TEST_F(PaleoLatitudeTest, TestNuuk){
 }
 
 TEST_F(PaleoLatitudeTest, TestHonolulu){
-	testLocation(21.3, -157.816667, -5, 27);
+	testLocation(21.3, -157.816667, -6, 28);
 }
 
 
