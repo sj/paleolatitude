@@ -33,7 +33,7 @@
 
 #include "PLPlate.h"
 
-#define PALEOLATITUDE_VERSION 1.1
+#define PALEOLATITUDE_VERSION "1.2"
 
 using namespace std;
 namespace bnu = boost::numeric::ublas;
@@ -132,9 +132,9 @@ public:
 	static void printAbout();
 
 	/**
-	 * Prints the version number of the model to stdout
+	 * Returns the version number of the model
 	 */
-	static void printVersion();
+	static string getVersion();
 
 private:
 	PLPolarWanderPaths* _pwp = NULL;

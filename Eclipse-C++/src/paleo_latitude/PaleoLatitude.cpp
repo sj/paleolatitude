@@ -393,8 +393,8 @@ double PaleoLatitude::_rad2deg(const double& rad){
 	return rad * (180.0 / M_PI);
 }
 
-void PaleoLatitude::printVersion(){
-	cout << "PaleoLatitude " << PALEOLATITUDE_VERSION << endl;
+string PaleoLatitude::getVersion(){
+	return PALEOLATITUDE_VERSION;
 }
 
 void PaleoLatitude::printAbout() {
@@ -406,8 +406,7 @@ void PaleoLatitude::printAbout() {
 	cout << "  Douwe J.J. van Hinsbergen, Lennart V. de Groot, Sebastiaan J. van Schaik," << endl;
 	cout << "  Appy Sluijs, Peter K. Bijl, Wim Spakman, Cor G. Langereis, Henk Brinkhuis:" << endl;
 	cout << "  A Paleolatitude Calculator for Paleoclimate Studies" << endl;
-	cout << "  In: PLOS ONE, 2014 (under review)" << endl << endl; // TODO
-	// TODO: doi URL?
+	cout << "  In: PLoS ONE, 2015 (http://doi.org/10.1371/journal.pone.0126946)." << endl << endl;
 }
 
 string PaleoLatitude::PaleoLatitudeEntry::to_string() {

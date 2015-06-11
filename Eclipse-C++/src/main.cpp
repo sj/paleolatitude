@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 
 	if (cmdline_params_values.count("version") > 0){
 		// Print version and exit
-		PaleoLatitude::printVersion();
+		cout << "PaleoLatitude " + PaleoLatitude::getVersion() << endl;
 		exit(0);
 	}
 
