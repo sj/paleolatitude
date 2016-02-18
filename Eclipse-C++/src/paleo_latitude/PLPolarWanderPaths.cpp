@@ -43,7 +43,11 @@ PLPolarWanderPaths::PWPEntry PLPolarWanderPaths::getEntry(unsigned int age) {
 	for (const PWPEntry& entry : _csvdata->getEntries()){
 		if (entry.age == age) return entry;
 	}
-	throw Exception("No apparent polar wander path known for specified age");
+
+	stringstream ex;
+	ex << "No apparent polar wander path known for age " << age;
+
+	throw Exception(ex.str());
 }
 
 
