@@ -1,2 +1,2 @@
 #!/bin/bash
-./PaleoLatitude --run-tests
+./PaleoLatitude --run-tests $@
