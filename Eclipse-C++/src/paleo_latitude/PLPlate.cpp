@@ -27,6 +27,28 @@ PLPlate::PLPlate(unsigned int plate_id, string plate_name, vector<Coordinate>* p
 	assert(_polygon_coordinates != NULL);
 }
 
+/**
+ * In exceptional circumstances, plates are fully contained within another plate. This
+ * method tests whether that's the case. By checking whether the other plate's coordinates
+ * are inside this plate.
+ *
+ * Note that this is an expensive operation - only use it when really necessary!
+ */
+bool PLPlate::contains(const PLPlate& other_plate) const {
+	// Count number of coordinates of other_plate that sit within this plate
+	unsigned int poly_coordinates_in_this_plate = 0;
+	for (unsigned int i = 0; i < other_plate._polygon_coordinates->size(); i++){
+		const Coordinate& other_poly_coord = (*other_plate._polygon_coordinates)[i];
+		poly_coordinates_in_this_plate += this->contains(other_poly_coord) ? 1 : 0;
+	}
+
+	double fraction_in = (double)poly_coordinates_in_this_plate / other_plate._polygon_coordinates->size();
+
+	// Assume the other plate is fully located within this plate if > 90% of its polygon
+	// coordinates fall within this plate.
+	return fraction_in > 0.9;
+}
+
 bool PLPlate::contains(const Coordinate& site) const {
 	typedef boost::geometry::model::point<double, 2, boost::geometry::cs::geographic<boost::geometry::degree> > point_type;
 	typedef boost::geometry::model::segment<point_type> segment_type;
@@ -46,7 +68,11 @@ bool PLPlate::contains(const Coordinate& site) const {
 			Coordinate(64.175, -51.738889),		// Nuuk, Greenland = Greenland plate
 			Coordinate(9.06, 7.47),				// Abuja, Nigeria = African plate
 			Coordinate(51.5, -0.1),				// London = European plate
-			Coordinate(-33.8, 151.2)			// Sydney = Australian plate
+			Coordinate(-33.8, 151.2),			// Sydney = Australian plate
+			Coordinate(45,-93.25),				// Minneapolis = North American plate
+			Coordinate(-22.9, -42.2),			// Rio de Janeiro = South American plate
+			Coordinate(14.75, -17.45),			// Dakar = NW African plate
+			Coordinate(22.3, 114.16)			// Hong Kong
 	};
 
 	vector<segment_type> rays;
@@ -103,7 +129,7 @@ bool PLPlate::contains(const Coordinate& site) const {
 	}
 
 	Exception ex;
-	ex << "Could not determine with sufficient certainty whether site (" << site.to_string() << ") is on plate '" << _name << "' (" << _id << ")";
+	ex << "Could not determine with sufficient certainty whether site (" << site.to_string() << ") is on plate '" << _name << "' (" << _id << "). Is the site on the border of two plates? (Details: in/out ray votes are " << votes_inside << " vs " << votes_outside << ")";
 	throw ex;
 }
 

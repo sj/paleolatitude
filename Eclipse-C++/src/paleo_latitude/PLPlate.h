@@ -35,7 +35,9 @@ public:
 	unsigned int getId() const;
 	const vector<Coordinate>* getCoordinates() const;
 
+	bool contains(const PLPlate& other_plate) const;
 	bool contains(const Coordinate& some_point) const;
+
 	void writeKMLPlacemark(ostream& output_stream, string linecolor = "440000ff") const;
 
 	string _ppCoordinates() const;

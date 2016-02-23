@@ -151,9 +151,24 @@ const PLPlate* paleo_latitude::PLPlates::findPlate(const Coordinate& site) const
 	for (const PLPlate* plate : _plates){
 		if (plate->contains(site)){
 			if (res != NULL){
-				Exception ex;
-				ex << "Two (or more) plates contain site " << site.to_string() << ": '" << res->getName() << "' (" << res->getId() << ") and '" << plate->getName() << "' (" << plate->getId() << ")";
-				throw ex;
+				// Already found a plate that contains this point? In exceptional circumstances,
+				// a plate is contained by another plate. In such a situation, check whether
+				// that is the case, and if so, use the most specific plate available.
+
+				if (res->contains(*plate)){
+					// This plate is fully contained in the previously found plate. Use
+					// this plate instead.
+					res = plate;
+				} else if (plate->contains(*res)){
+					// This plate fully contains the previously found plate. Keep the
+					// previous plate as result
+				} else {
+					// Neither contains the other. That means that plates are
+					// overlapping at the provided coordinate.
+					Exception ex;
+					ex << "Two (or possibly more) plates contain site " << site.to_string() << ": '" << res->getName() << "' (" << res->getId() << ") and '" << plate->getName() << "' (" << plate->getId() << ")";
+					throw ex;
+				}
 			}
 			res = plate;
 		}
