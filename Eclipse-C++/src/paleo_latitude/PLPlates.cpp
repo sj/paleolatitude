@@ -22,6 +22,7 @@
 
 #include "../debugging-macros.h"
 #include "exceptions/PLFileParseException.h"
+#include <set>
 
 using pugi::xml_document;
 using namespace paleo_latitude;
@@ -183,8 +184,24 @@ const PLPlate* paleo_latitude::PLPlates::findPlate(const Coordinate& site) const
 	return res;
 }
 
+/**
+ * Returns the plate parts as defined by the input data. Note that some plates consist
+ * of multiple parts stitched together. In that case, every part is returned separately,
+ * as if it were a 'plate' on its own. However, the plate IDs of those parts will be
+ * the same.
+ */
 const vector<const PLPlate*> paleo_latitude::PLPlates::getPlates() const {
 	return _plates;
+}
+
+/**
+ * Counts the actual number of plates (rather than the plate parts, which are
+ * returned by #getPlates()). In other words: counts the number of unique plate IDs
+ */
+const int paleo_latitude::PLPlates::countRealNumberOfPlates() const {
+	set<int> unique_ids;
+	for (const PLPlate* plate : _plates) unique_ids.insert(plate->getId());
+	return unique_ids.size();
 }
 
 /**

@@ -24,6 +24,7 @@ public:
 	const PLPlate* findPlate(double lat, double lon) const;
 
 	const vector<const PLPlate*> getPlates() const;
+	const int countRealNumberOfPlates() const;
 
 	static PLPlates* readFromFile(const string& filename);
 

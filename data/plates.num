@@ -1,4 +1,4 @@
 # This file contains the number of plates provided in plates.kml and/or plates.gpml. This count
 # is used for test purposes: see PLPlateDataTest.cpp. When the plate specifications are changed,
 # this number will probably need updating.
-73
+66
