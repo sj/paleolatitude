@@ -15,6 +15,9 @@ using namespace std;
 
 class PlateDataTest : public ::testing::Test {
 
+private:
+	static string _normalisePlateName(string plate_name);
+
 public:
 	static void testLocation(double lat, double lon, unsigned int expected_plate_id, string expected_plate_name);
 };
