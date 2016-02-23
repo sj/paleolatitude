@@ -41,9 +41,24 @@ TEST_F(PlateDataTest, TestSydney){
 	PlateDataTest::testLocation(-33.859972, 151.209444, 801, "Australia");
 }
 
+
 TEST_F(PlateDataTest, TestNuuk){
 	PlateDataTest::testLocation(64.175, -51.738889, 102, "Greenland");
 }
+
+TEST_F(PlateDataTest, TestRussia){
+	PlateDataTest::testLocation(60, 30, 301, "Eurasia");
+}
+
+TEST_F(PlateDataTest, TestSiberia){
+	PlateDataTest::testLocation(60, 90, 401, "Somewhere in Siberia");
+}
+
+TEST_F(PlateDataTest, TestElanBank){
+	// Elan Bank is plate-within-plate
+	PlateDataTest::testLocation(-60, +60, 514, "Elan Bank");
+}
+
 
 TEST_F(PlateDataTest, TestHonolulu){
 	PlateDataTest::testLocation(21.3, -157.816667, 901, "Pacific");
@@ -143,15 +158,23 @@ TEST_F(PlateDataTest, TestSouthPole){
 	PlateDataTest::testLocation(-89, 1, 802, "East Antarctica");
 }
 
+string PlateDataTest::_normalisePlateName(const string plate_name) {
+	string res = plate_name;
+	boost::algorithm::to_lower(res); // in-place!
 
+	// We don't care about the difference between 'Elan Bank plate' and 'Elan Bank'
+	boost::replace_all(res, "plate", ""); // in-place!
+
+	boost::trim(res); // in-place
+
+	return res;
+}
 
 void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_plate_id, string expected_plate_name) {
+	string expected_plate_name_norm = PlateDataTest::_normalisePlateName(expected_plate_name);
 
-	string expected_plate_name_lc = expected_plate_name;
-	boost::algorithm::to_lower(expected_plate_name_lc);
-
-	string kml_plate_name_lc;
-	string gpml_plate_name_lc;
+	string kml_plate_name_norm;
+	string gpml_plate_name_norm;
 	int kml_plate_id;
 	int gpml_plate_id;
 
@@ -161,8 +184,7 @@ void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_p
 		const PLPlate* plate_kml = plp_kml->findPlate(lat, lon);
 
 		kml_plate_id = plate_kml->getId();
-		kml_plate_name_lc = plate_kml->getName();
-		boost::algorithm::to_lower(kml_plate_name_lc);
+		kml_plate_name_norm = PlateDataTest::_normalisePlateName(plate_kml->getName());
 	} catch (...){}
 
 
@@ -172,25 +194,26 @@ void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_p
 		const PLPlate* gpml_plate = plp_gpml->findPlate(lat, lon);
 
 		gpml_plate_id = gpml_plate->getId();
-		gpml_plate_name_lc = gpml_plate->getName();
-		boost::algorithm::to_lower(gpml_plate_name_lc);
-	} catch (...){}
+		gpml_plate_name_norm = PlateDataTest::_normalisePlateName(gpml_plate->getName());
+	} catch (Exception& e){
+		FAIL() << "Unexpected exception during point-on-plate computation: " << e.what();
+	}
 
 
 	if (plp_kml != NULL && plp_gpml != NULL){
 		ASSERT_EQ(kml_plate_id, gpml_plate_id) << "Plate ID mismatch between plates.gpml and plates.kml: have the files been synchronised? Expected plate ID: " << expected_plate_id;
-		ASSERT_EQ(kml_plate_name_lc, gpml_plate_name_lc) << "Plate name between plates.gpml and plates.kml: have the files been synchronised? Expected plate name: " << expected_plate_name_lc;
+		ASSERT_EQ(kml_plate_name_norm, gpml_plate_name_norm) << "Plate name between plates.gpml and plates.kml: have the files been synchronised? Expected (normalised) plate name: " << expected_plate_name_norm;
 	}
 
 	if (plp_kml != NULL){
 		ASSERT_EQ(expected_plate_id, kml_plate_id) << "Unexpected plate name in GPML file";
-		ASSERT_EQ(expected_plate_name_lc, kml_plate_name_lc) << "Unexpected plate name in KML file";
+		ASSERT_EQ(expected_plate_name_norm, kml_plate_name_norm) << "Unexpected plate name in KML file";
 	}
 
 
 	if (plp_gpml != NULL){
 		ASSERT_EQ(expected_plate_id, gpml_plate_id);
-		ASSERT_EQ(expected_plate_name_lc, gpml_plate_name_lc);
+		ASSERT_EQ(expected_plate_name_norm, gpml_plate_name_norm);
 	}
 
 	ASSERT_TRUE(plp_kml != NULL || plp_gpml != NULL) << "No plate data (KML or GPML) found?";
