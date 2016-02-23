@@ -18,11 +18,11 @@ using namespace std;
 using namespace paleo_latitude;
 
 TEST_F(PlateDataTest, TestAmsterdam){
-	PlateDataTest::testLocation(52.366667, 4.9, 301, "Eurasia");
+	PlateDataTest::testLocation(52.366667, 4.9, 315, "Eurasia");
 }
 
 TEST_F(PlateDataTest, TestNewYork){
-	PlateDataTest::testLocation(40.7127, -74.0059, 101, "North America");
+	PlateDataTest::testLocation(40.7127, -74.0059, 199, "Alleghanian North America");
 }
 
 TEST_F(PlateDataTest, TestCapetown){
@@ -47,11 +47,11 @@ TEST_F(PlateDataTest, TestNuuk){
 }
 
 TEST_F(PlateDataTest, TestRussia){
-	PlateDataTest::testLocation(60, 30, 301, "Eurasia");
+	PlateDataTest::testLocation(60, 30, 301, "Baltica");
 }
 
 TEST_F(PlateDataTest, TestSiberia){
-	PlateDataTest::testLocation(60, 90, 401, "Somewhere in Siberia");
+	PlateDataTest::testLocation(60, 90, 401, "Siberia");
 }
 
 TEST_F(PlateDataTest, TestElanBank){
@@ -81,7 +81,7 @@ TEST_F(PlateDataTest, TestMascara){
 TEST_F(PlateDataTest, TestLongyearbyen){
 	// Longyearbyen is on the Eurasian plate, but very close to both the Greenland plate,
 	// and the North American Plate
-	PlateDataTest::testLocation(78.22, 15.65, 301, "Eurasia");
+	PlateDataTest::testLocation(78.22, 15.65, 315, "Eurasia");
 }
 
 TEST_F(PlateDataTest, TestNumberOfPlates){
@@ -116,17 +116,19 @@ TEST_F(PlateDataTest, TestNumberOfPlates){
 	PLPlates* plp_kml = NULL;
 	try {
 		plp_kml = PLPlates::readFromFile("data/plates.kml");
-		num_kml_plates = plp_kml->getPlates().size();
+		num_kml_plates = plp_kml->countRealNumberOfPlates();
 	} catch (...){} // No worries if file not readable - just use GPML
 
 	PLPlates* plp_gpml = NULL;
 	try {
 		plp_gpml = PLPlates::readFromFile("data/plates.gpml");
-		num_gpml_plates = plp_gpml->getPlates().size();
+		num_gpml_plates = plp_gpml->countRealNumberOfPlates();
 	} catch (...){} // No worries if file not readable - just use KML
 
 	if (plp_kml != NULL && plp_gpml != NULL){
 		ASSERT_TRUE(num_kml_plates == num_gpml_plates) << "KML and GPML files do not agree on plate counts";
+	} else if (plp_kml == NULL && plp_gpml == NULL){
+		FAIL() << "Could not read plate data from KML or GPML file?" << endl;
 	}
 
 	ASSERT_GT(expected_plate_count, 0) << "No plate count provided in 'plates.num'";
