@@ -47,18 +47,25 @@ void print_usage(bpo::options_description& cmdline_options_spec){
  */
 void runUnitTestsIfRequested(int argc, char* argv[]){
 	bool run_tests = false;
+	bool debug = false;
 
 	for (int i = 0; i < argc; i++){
 		const string arg = argv[i];
 		if (arg == "--run-unit-tests" || arg == "--run-tests" || arg == "run-tests" || arg == "runtests"){
 			run_tests = true;
-			break;
+		} else if (arg == "--debug"){
+			debug = true;
 		}
 	}
 
 	if (run_tests){
 #ifndef __OPTIMIZE__
 		// Call Google Test
+		if (!debug){
+			Logger::debug.disable();
+			Logger::info.disable();
+		}
+
 		::testing::InitGoogleTest(&argc, argv);
 		const int test_result = RUN_ALL_TESTS();
 		exit(test_result);
@@ -70,8 +77,9 @@ void runUnitTestsIfRequested(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
-	// First and foremost: run unit tests when requested
+	// First and foremost: run unit tests when requested (will exit after running tests)
 	runUnitTestsIfRequested(argc, argv);
+
 
 	// Parameters to Paleolatitude model implementation
 	PLParameters* pl_params = new PLParameters();
@@ -125,6 +133,7 @@ int main(int argc, char* argv[]) {
 		if (disable_ll == 2) Logger::info.disable();
 		__IF_DEBUG(if(disable_ll == 3) Logger::debug.disable();)
 	}
+
 
 	pl_params->all_ages = (cmdline_params_values.count("all-ages") > 0);
 
