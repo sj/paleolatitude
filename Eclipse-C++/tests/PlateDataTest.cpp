@@ -149,7 +149,7 @@ TEST_F(PlateDataTest, TestNorthPole){
 	PlateDataTest::testLocation(82.536376, -10.279457, 102, "Greenland");
 
 	// Piece of Eurasian plate enclosed by North American and Greenland plates
-	PlateDataTest::testLocation(80.215851, -2.679118, 301, "Eurasia");
+	PlateDataTest::testLocation(80.215851, -2.679118, 315, "Eurasia");
 
 	// North-east Siberian plate, close to some other plates around the north pole, and very close
 	// to the 180 degree meridian
