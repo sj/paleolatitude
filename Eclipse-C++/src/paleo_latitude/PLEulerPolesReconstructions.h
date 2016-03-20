@@ -23,6 +23,7 @@ public:
 
 		unsigned int plate_id = 0;
 		unsigned int age = 0;
+		unsigned int rotation_rel_to_plate_id = 0;
 		double latitude = 0;
 		double longitude = 0;
 		double rotation = 0;

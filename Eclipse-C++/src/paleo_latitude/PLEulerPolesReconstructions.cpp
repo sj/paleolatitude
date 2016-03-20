@@ -69,16 +69,18 @@ void PLEulerPolesReconstructions::EPEntry::set(unsigned int col_index, const str
 	// Column index 2: latitude (double)
 	// Column index 3: longitude (double)
 	// Column index 4: rotation (double)
+	// Column index 5: plate id (uint) to which the rotation is relative
 
 	if (col_index == 0) this->parseString(value, this->plate_id, filename, lineno);
 	if (col_index == 1) this->parseString(value, this->age, filename, lineno);
 	if (col_index == 2) this->parseString(value, this->latitude, filename, lineno);
 	if (col_index == 3) this->parseString(value, this->longitude, filename, lineno);
 	if (col_index == 4) this->parseString(value, this->rotation, filename, lineno);
+	if (col_index == 5) this->parseString(value, this->rotation_rel_to_plate_id, filename, lineno);
 }
 
 unsigned int PLEulerPolesReconstructions::EPEntry::numColumns() const {
-	return 5;
+	return 6;
 }
 
 const PLEulerPolesReconstructions::EPEntry& PLEulerPolesReconstructions::getEntry(const PLPlate* plate, unsigned int age) const {

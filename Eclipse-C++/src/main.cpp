@@ -33,7 +33,6 @@ using namespace paleo_latitude;
 
 namespace bpo = boost::program_options;
 
-
 void print_usage(bpo::options_description& cmdline_options_spec){
 	cout << "Usage: paleolatitude [options]" << endl;
 	cout << cmdline_options_spec << endl;
