@@ -37,27 +37,48 @@ void PLEulerPolesReconstructions::_readFromFile(const string& filename) {
 vector<unsigned int> PLEulerPolesReconstructions::getRelevantAges(const PLPlate* plate, unsigned int min, unsigned int max){
 	vector<unsigned int> res;
 
-	unsigned int prev_age = 0;
+	int left_outside_age = -1;
+	int right_outside_age = -1;
+
 	for (const EPEntry& entry : _csvdata->getEntries()){
 		if (entry.plate_id != plate->getId()) continue;
 
-		if (prev_age < min && entry.age > min){
-			// Left-outside case
-			res.push_back(prev_age);
-		}
-
-		if (prev_age < max && entry.age >= max){
-			// Right-outside case
-			res.push_back(entry.age);
-			break;
-		}
 
 		if (entry.age >= min && entry.age <= max){
+			// CSV entry falls in between the min/max: this age should be included
+			// in the ages.
 			res.push_back(entry.age);
 		}
 
-		prev_age = entry.age;
+		if (entry.age <= min){
+			// Entry is on window border, or just outside window. Let's
+			// see whether we need it.
+			if (left_outside_age == -1 || (unsigned int) left_outside_age < entry.age){
+				// The previously found left-outside entry is less relevant than
+				// this entry
+				left_outside_age = entry.age;
+			}
+		}
+
+		if (entry.age >= max){
+			// Entry is on/outside window border on right
+			if (right_outside_age == -1 || (unsigned int) right_outside_age > entry.age){
+				right_outside_age = entry.age;
+			}
+		}
 	}
+
+	if (left_outside_age >= 0 && (unsigned int) left_outside_age < min){
+		// Include left-outside
+		res.push_back(left_outside_age);
+	} // else: no left-outside, or left outside is on window border (and therefore already included)
+
+
+	if (right_outside_age >= 0 && (unsigned int) right_outside_age > max){
+		// Include left-outside
+		res.push_back(right_outside_age);
+	} // else: no right-outside, or is on window border (and therefore already included)
+
 
 	return res;
 }
