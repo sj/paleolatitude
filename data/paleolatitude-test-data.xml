@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<paleolatitude-tests>
+	<expected-plate-count>67</expected-plate-count>
+	
+	<location-test name="Amsterdam">
+		<coordinates lat="52.366667" lon="4.9" />
+		
+		<expected-plate-id>315</expected-plate-id>
+		<expected-plate-name>Eurasia</expected-plate-name>
+		
+		<expected-paleolatitude model="torsvik-2012" age_min="0" age_max="200">
+			<paleolatitude bound="lower">20</paleolatitude>
+			<paleolatitude bound="upper">60</paleolatitude> 
+		</expected-paleolatitude>
+		
+		<expected-paleolatitude model="torsvik-2012" age="100">
+			<paleolatitude>40</paleolatitude>
+		</expected-paleolatitude>
+	</location-test>
+</paleolatitude-tests>
+
