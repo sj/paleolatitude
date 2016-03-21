@@ -137,6 +137,13 @@ void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_
 
 }
 
+
+TEST_F(PaleoLatitudeTest, TestLocationsFromXML){
+	// Open 'paleolatitude-test-data.xml': specifies a number of locations,
+	// their expected plates, and their expected paleolatitudes
+	FAIL() << "todo";
+}
+
 /**
  * The tests below were based on data that was accurate on 20/08/2014. If one of these tests fails,
  * check the implementation, check the data, and update the test if the data turns out to yield a
