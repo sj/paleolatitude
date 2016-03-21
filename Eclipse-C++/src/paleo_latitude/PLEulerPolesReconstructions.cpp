@@ -8,7 +8,7 @@
 #include "PLEulerPolesReconstructions.h"
 
 #include "PLPlate.h"
-
+#include <algorithm>
 using namespace std;
 using namespace paleo_latitude;
 
@@ -79,6 +79,8 @@ vector<unsigned int> PLEulerPolesReconstructions::getRelevantAges(const PLPlate*
 		res.push_back(right_outside_age);
 	} // else: no right-outside, or is on window border (and therefore already included)
 
+	// Make sure the years are sorted from small (recent) to large (less recent)
+	sort(res.begin(), res.end());
 
 	return res;
 }
