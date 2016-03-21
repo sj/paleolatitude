@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <cmath>
+#include "../util/Exception.h"
 using namespace paleo_latitude;
 
 bool PLParameters::validate() const {
@@ -17,25 +18,31 @@ bool PLParameters::validate() const {
 }
 
 bool PLParameters::validate(string& err_msg) const {
-	if (age < 0 && !all_ages){
-		err_msg = "Error in input parameters: age not specified.";
+	const string err_msg_one_of_three =  "Error in input parameters: expecting exactly one of (1) both age and age-pm, (2) min-age, and max-age, or (3) all-ages";
+
+	if (age < 0 && age_min < 0 && age_max < 0 && !all_ages){
+		// None of the age specifications given. Need one.
+		err_msg = err_msg_one_of_three;
 		return false;
 	}
 
-	const string err_msg_one_of_three =  "Error in input parameters: expecting exactly one of (1) both age and age-pm, (2) age, min-age, and max-age, or (3) all-ages";
-
 	if (age_max >= 0 || age_min >= 0){
+		// At least one of age_min,age_max provided
+
 		if (age_pm >= 0 || all_ages){
+			// Cannot provide arguments for age plus-minus and/or all-ages as well
 			err_msg = err_msg_one_of_three;
 			return false;
 		}
 
-		// Expecting age-min, age-max, and age
+		// Expecting both age-min, age-max
 		if (age_max < 0 || age_min < 0){
 			err_msg = "Error in input parameters: only one of age-min or age-max specified, please specify either both or neither";
 			return false;
 		}
-		if (age > age_max || age < age_min || age < 0){
+
+		// If age is specified, then it has to be within min max
+		if (age >= 0 && (age > age_max || age < age_min)){
 			err_msg = "Error in input parameters: age not specified or not within bounds of [age_min, age_max]";
 			return false;
 		}
@@ -98,5 +105,10 @@ unsigned long paleo_latitude::PLParameters::getMaxAgeInYears() const {
 }
 
 unsigned long paleo_latitude::PLParameters::getAgeInYears() const {
+	if (!this->hasAge()) throw Exception("no age specified - cannot compute age in Myr");
 	return static_cast<unsigned long>(round(age * 1000000));
+}
+
+bool PLParameters::hasAge() const {
+	return age > -0.001;
 }

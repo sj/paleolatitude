@@ -178,16 +178,25 @@ int main(int argc, char* argv[]) {
 
 	if (cmdline_params_values.count("machine-readable") == 0){
 		// Output is intended for human user - print the basic paleolatitude result
-		if (cmdline_params_values.count("all-ages") == 0){
-			// Specific age specified
-			PaleoLatitude::PaleoLatitudeEntry res = pl->getPaleoLatitude();
-			cout << "The paleolatitude of site (" << pl_params->site_latitude << "," << pl_params->site_longitude << ") in age range [" << pl_params->getMinAge() << "," << pl_params->getMaxAge() << "]: ";
-			cout << res.palat << " (bounds: [" << res.palat_min << "," << res.palat_max << "])" << endl;
+		PaleoLatitude::PaleoLatitudeEntry res = pl->getPaleoLatitude();
+
+		cout << "The paleolatitude of site (" << pl_params->site_latitude << "," << pl_params->site_longitude << ") ";
+		if (res.age_years >= 0){
+			// Specific age requested
+			cout << "at age " << (res.age_years / 1000000.0) << " Myr is: ";
+			cout << res.palat;
+			cout << " (bounds: [" << res.palat_min << "," << res.palat_max << "])";
+
+			if (res.age_years != res.age_years_lower_bound || res.age_years != res.age_years_upper_bound){
+				// Result contains bound based on an age range with min/max other than requested age
+				cout << " for age range [" << (res.age_years_lower_bound / 1000000.0) << "," << (res.age_years_upper_bound / 1000000.0) << "] Myr)";
+			} // else: bounds are specifically for requested age
+
+			cout << endl;
 		} else {
-			// All ages requested - just print the general bounds
-			pair<double,double> bounds = pl->getPaleoLatitudeBounds();
-			cout << "The paleolatitude bounds of site (" << pl_params->site_latitude << "," << pl_params->site_longitude << ") for all ages are: ";
-			cout << "[" << bounds.first << "," << bounds.second << "]" << endl;
+			// No specific age requested (so: age bound or all ages) - just print the general bounds
+			cout << "in age range [" << (res.age_years_lower_bound / 1000000.0) << "," << (res.age_years_upper_bound / 1000000.0) << "] Myr is: ";
+			cout << "[" << res.palat_min << "," << res.palat_max << "]" << endl;
 		}
 	} else if (cmdline_params_values.count("machine-readable") > 0){
 		// Output should be machine readable. Write to stdout:

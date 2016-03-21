@@ -91,7 +91,6 @@ bool PaleoLatitude::compute(){
 	}
 
 	const double age_myr = _params->age;
-	const double age_years = _params->getAgeInYears();
 	const double age_max_myr = _params->getMaxAge();
 	const double age_min_myr = _params->getMinAge();
 	const unsigned long age_min_years = _params->getMinAgeInYears();
@@ -105,11 +104,7 @@ bool PaleoLatitude::compute(){
 		compute_ages = _euler->getRelevantAges(_plate, age_min_myr, age_max_myr);
 	}
 
-	if ((age_max_years != _params->getAgeInYears()) && compute_ages.size() < 2){
-		// Need to interpolate, but insufficient data
-		Logger::error << "Insufficient data available to interpolate paleolatitude for site (" << _params->site_latitude << "," << _params->site_longitude << ") on plate " << _plate->getName() << " (id: " << _plate->getId() << ") for the requested age(s). Maybe try computing for all ages?";
-		return false;
-	} else if (compute_ages.size() == 0){
+	if (compute_ages.size() == 0){
 		Logger::error << "Insufficient data available to compute paleolatitude for site (" << _params->site_latitude << "," << _params->site_longitude << ") on plate " << _plate->getName() << " (id: " << _plate->getId() << ") for the requested age(s). Maybe try computing for all ages?";
 		return false;
 	}
@@ -129,7 +124,7 @@ bool PaleoLatitude::compute(){
 
 		PaleoLatitudeEntry palat;
 		if (_result.size() > 0 && _result.back().age_years == curr_age_years){
-			// Already computed
+			// Already computed in previous round
 			palat = _result.back();
 		} else {
 			palat = _calculatePaleolatitudeRangeForAge(site, _plate, curr_age_myr);
@@ -149,11 +144,17 @@ bool PaleoLatitude::compute(){
 				_result.push_back(interpolated);
 			}
 
-			if (age_myr > curr_age_myr && age_myr < next_age_myr){
-				// requested age in between current and next age - interpolate
-				PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_years);
-				_result.push_back(interpolated);
-			}
+			if (_params->hasAge()){
+				// Specific age requested - make sure we actually provide an answer
+				// for that age (we might have to interpolate)
+				const double age_years = _params->getAgeInYears();
+
+				if (age_myr > curr_age_myr && age_myr < next_age_myr){
+					// requested age in between current and next age - interpolate
+					PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_years);
+					_result.push_back(interpolated);
+				}
+			} // else: no specific age requested
 
 			if (age_max_myr > curr_age_myr && age_max_myr < next_age_myr){
 				// age_max in between current and next age - interpolate
@@ -161,6 +162,8 @@ bool PaleoLatitude::compute(){
 				_result.push_back(interpolated);
 			}
 
+			// While we have the result, we might as well store it (it won't be stored
+			// twice, see above)
 			_result.push_back(next_palat);
 		}
 	}
@@ -382,7 +385,8 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRangeFor
 		Logger::info << "[" << lambda_min << "," << lambda_max << "]" << endl;
 	}
 
-	return PaleoLatitudeEntry(age_myr * 1000000, lambda_min, lambda, lambda_max);
+	const unsigned long age_years = age_myr * 1000000;
+	return PaleoLatitudeEntry(age_years, age_years, age_years, lambda_min, lambda, lambda_max);
 }
 
 double PaleoLatitude::_deg2rad(const double& deg){
@@ -430,7 +434,7 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::PaleoLatitudeEntry::interpolate
 	const double palat = other_younger.palat + (delta_palat / delta_age) * rel_age;
 	const double palat_max = other_younger.palat_max + (delta_palat_max / delta_age) * rel_age;
 
-	PaleoLatitudeEntry res = PaleoLatitudeEntry(age_years, palat_min, palat, palat_max);
+	PaleoLatitudeEntry res = PaleoLatitudeEntry(age_years, age_years, age_years, palat_min, palat, palat_max);
 	res.is_interpolated = true;
 	return res;
 }
@@ -444,55 +448,38 @@ const vector<PaleoLatitude::PaleoLatitudeEntry> PaleoLatitude::getRelevantPaleol
 }
 
 /**
- * Returns
- *
- * @returns a pair<double,double> that represents the lower and upper bound of the paleolatitude
- */
-pair<double,double> PaleoLatitude::getPaleoLatitudeBounds() const {
-	_requireResult();
-
-	double palat_min = 999;
-	double palat_max = -999;
-
-	for (PaleoLatitudeEntry entry : _result){
-		if (entry.palat_min < palat_min) palat_min = entry.palat_min;
-		if (entry.palat_max > palat_max) palat_max = entry.palat_max;
-	}
-
-	return make_pair(palat_min, palat_max);
-}
-
-/**
  * Returns the result of the paleolatitude computation for a specific site and specific age bounds. This method cannot be
- * used when the paleolatitude of all ages is computed.
+ * used when the paleolatitude of an age range (or of all ages) is computed.
  *
  * @see getPaleolatitudeBounds
  */
 PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::getPaleoLatitude() const {
 	_requireResult();
 
-	if (_params->all_ages){
-		throw Exception("Cannot call getPaleoLatitudeRange() when paleolatitude of all ages is requested");
-	}
+	__IF_DEBUG(Logger::debug << "Processing " << _result.size() << " results for requested time period" << endl;)
 
-	double palat_min = 999;
-	double palat = 999;
-	double palat_max = -999;
+	// The computation might have yielded multiple results, even if only a single
+	// age was requested: if that exact age is not available, then the results will
+	// have been interpolated. In that case, the bounds of the whole set of data
+	// points need to be inspected: the min and max need to be returned.
+	PaleoLatitudeEntry aggr;
+	aggr.age_years = 99999; // placeholder to trigger later initialisation
 
 	for (PaleoLatitudeEntry entry : _result){
 		if (entry.age_years < _params->getMinAgeInYears()) continue;
 		if (entry.age_years > _params->getMaxAgeInYears()) break;
 
-		if (entry.palat_min < palat_min) palat_min = entry.palat_min;
-		if (entry.palat_max > palat_max) palat_max = entry.palat_max;
-		if (entry.age_years  == _params->getAgeInYears()) palat = entry.palat;
+		if (aggr.age_years == 99999) aggr = entry; // initialise with useful value
+
+		if (entry.palat_min < aggr.palat_min) aggr.palat_min = entry.palat_min;
+		if (entry.palat_max > aggr.palat_max) aggr.palat_max = entry.palat_max;
+		if (entry.age_years_lower_bound < aggr.age_years_lower_bound) aggr.age_years_lower_bound = entry.age_years_lower_bound;
+		if (entry.age_years_upper_bound > aggr.age_years_upper_bound) aggr.age_years_upper_bound = entry.age_years_upper_bound;
+
+		if (_params->hasAge() && entry.age_years  == _params->getAgeInYears()) aggr.palat = entry.palat;
 	}
 
-	if (palat > 100 || palat < -100 || palat_min > 100 || palat_min < -100 || palat_max > 100 || palat_min < -100){
-		throw Exception("Unable to determine paleolatitude: no site (plate) data available for specified age");
-	}
-
-	return PaleoLatitudeEntry(_params->age * 1000000, palat_min, palat, palat_max);
+	return aggr;
 }
 
 void PaleoLatitude::writeCSV(const string& filename) {

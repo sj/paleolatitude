@@ -37,8 +37,9 @@ TEST_F(PaleoLatitudeTest, TestUnconstrainedPlate){
 	PaleoLatitude pl(pl_params);
 
 	// This will probably print an error - that's fine
-	Logger::disableAll();
+	cerr << "This test verifies that working on an unconstrained plate does not cause problems. Expect an error message next." << endl;
 	bool compute_result = pl.compute();
+	cerr << "An error message should have appeared above. No more errors are expected after this (unless specified otherwise)." << endl;
 
 	ASSERT_FALSE(compute_result) << "Paleolatitude computation succeeded for unconstrained plate";
 }
@@ -109,12 +110,11 @@ TEST_F(PaleoLatitudeTest, TestDateOrder){
 
 void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_lower, double expected_pl_upper){
 	PLParameters* pl_params = new PLParameters();
-	pl_params->all_ages = true;
 	pl_params->site_latitude = lat;
 	pl_params->site_longitude = lon;
-
-	Logger::debug.disable();
-	//Logger::enableAll();
+	//pl_params->age = 100;
+	pl_params->age_min = 0;
+	pl_params->age_max = 200;
 
 	for (unsigned int i = 0; i < PolarWanderPathsDataTest::CSV_FILES.size(); i++){
 		const string euler_csvfile = EulerPolesDataTest::CSV_FILES[i];
@@ -128,11 +128,11 @@ void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_
 		PaleoLatitude pl(pl_params);
 		pl.compute();
 
-		pair<double,double> bounds = pl.getPaleoLatitudeBounds();
+		PaleoLatitude::PaleoLatitudeEntry res = pl.getPaleoLatitude();
 
-		Logger::debug << "Verifying computed latitude bounds for location (lat=" << lat << ",lon=" << lon << "): bounds [" << bounds.first << "," << bounds.second << "] established using " << euler_csvfile << ", " << apwp_csvfile << "..." << endl;
-		ASSERT_LE(expected_pl_lower, bounds.first) << "Unexpected location paleolatitude lower bound (using " << euler_csvfile << ", " << apwp_csvfile << ")";
-		ASSERT_GE(expected_pl_upper, bounds.second) << "Unexpected location paleolatitude upper bound (using " << euler_csvfile << ", " << apwp_csvfile << ")";
+		Logger::debug << "Verifying computed latitude bounds for location (lat=" << lat << ",lon=" << lon << "): bounds [" << res.palat_min << "," << res.palat_max << "] established using " << euler_csvfile << ", " << apwp_csvfile << "..." << endl;
+		ASSERT_LE(expected_pl_lower, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << euler_csvfile << ", " << apwp_csvfile << ")";
+		ASSERT_GE(expected_pl_upper, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << euler_csvfile << ", " << apwp_csvfile << ")";
 	}
 
 }
@@ -161,6 +161,10 @@ TEST_F(PaleoLatitudeTest, TestNuuk){
 
 TEST_F(PaleoLatitudeTest, TestHonolulu){
 	testLocation(21.3, -157.816667, -6, 28);
+}
+
+TEST_F(PaleoLatitudeTest, TestAmsterdam){
+	testLocation(52.366667, 4.9, 20, 60);
 }
 
 

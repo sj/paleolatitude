@@ -25,6 +25,7 @@ public:
 	unsigned long getMinAgeInYears() const;
 	unsigned long getMaxAgeInYears() const;
 
+	bool hasAge() const;
 	unsigned long getAgeInYears() const;
 
 	string input_apwp_csv = "data/apwp-701-torsvik-2012.csv";

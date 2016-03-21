@@ -33,7 +33,7 @@
 
 #include "PLPlate.h"
 
-#define PALEOLATITUDE_VERSION "1.2"
+#define PALEOLATITUDE_VERSION "1.3"
 
 using namespace std;
 namespace bnu = boost::numeric::ublas;
@@ -53,15 +53,16 @@ class PaleoLatitude {
 
 public:
 	struct PaleoLatitudeEntry {
-		PaleoLatitudeEntry() : age_years(0), palat_min(0), palat(0), palat_max(0) {}
-		PaleoLatitudeEntry(unsigned long age_years_, double palat_min_, double palat_, double palat_max_) :
-			age_years(age_years_), palat_min(palat_min_), palat(palat_), palat_max(palat_max_){}
+		PaleoLatitudeEntry() : age_years_lower_bound(0), age_years(0), age_years_upper_bound(0), palat_min(0), palat(0), palat_max(0) {}
+		PaleoLatitudeEntry(unsigned long age_years_lower_bound_, unsigned long age_years_, unsigned long age_years_upper_bound_, double palat_min_, double palat_, double palat_max_) :
+			age_years_lower_bound(age_years_lower_bound_), age_years(age_years_), age_years_upper_bound(age_years_upper_bound_), palat_min(palat_min_), palat(palat_), palat_max(palat_max_){}
 
 		string to_string();
 		static PaleoLatitudeEntry interpolate(const PaleoLatitudeEntry& other_younger, const PaleoLatitudeEntry& other_older, unsigned long age_years);
 
 		double getAgeInMIY() const;
-		unsigned long age_years;
+		unsigned long age_years_lower_bound, age_years, age_years_upper_bound;
+
 		double palat_min, palat, palat_max;
 		bool is_interpolated = false;
 	};
@@ -103,12 +104,6 @@ public:
 	 * Cannot be called when the paleolatitude of all ages is requested.
 	 */
 	PaleoLatitudeEntry getPaleoLatitude() const;
-
-	/**
-	 * Returns the lower and upper bound of all paleolatitude results. Mostly useful when all
-	 * ages have been requested.
-	 */
-	pair<double,double> getPaleoLatitudeBounds() const;
 
 	/**
 	 * Quick-access method to set the parameters of this PaleoLatitude
