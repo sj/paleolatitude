@@ -116,6 +116,6 @@ const PLEulerPolesReconstructions::EPEntry& PLEulerPolesReconstructions::getEntr
 }
 
 
-const vector<PLEulerPolesReconstructions::EPEntry>& PLEulerPolesReconstructions::getEntries() const {
+const vector<PLEulerPolesReconstructions::EPEntry>& PLEulerPolesReconstructions::getAllEntries() const {
 	return _csvdata->getEntries();
 }
