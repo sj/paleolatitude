@@ -48,7 +48,13 @@ public:
 	 */
 	vector<unsigned int> getRelevantAges(const PLPlate* plate, unsigned int min, unsigned int max);
 
-	const EPEntry& getEntry(const PLPlate* plate, unsigned int age) const;
+	/**
+	 * Returns the Euler poles for a given plate and age. Often, the result will be a single
+	 * EPEntry, but in rare cases two entries will be returned. This happens at the cross-over
+	 * point at which rotation is expressed relative to two plates (e.g. plate 102 at 320 Ma in Torsvik).
+	 */
+	const vector<EPEntry> getEntries(const PLPlate* plate, unsigned int age) const;
+
 	const vector<EPEntry>& getAllEntries() const;
 
 	static PLEulerPolesReconstructions* readFromFile(const string& filename);

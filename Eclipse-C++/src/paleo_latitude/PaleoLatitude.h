@@ -32,6 +32,8 @@
 #include <iostream>
 
 #include "PLPlate.h"
+#include "PLPolarWanderPaths.h"
+#include "PLEulerPolesReconstructions.h"
 
 #define PALEOLATITUDE_VERSION "1.3"
 
@@ -140,7 +142,8 @@ private:
 
 	vector<PaleoLatitudeEntry> _result;
 
-	PaleoLatitudeEntry _calculatePaleolatitudeRangeForAge(const Coordinate& site, const PLPlate* plate, unsigned int age);
+	PaleoLatitudeEntry _calculatePaleolatitudeRangeForAge(const Coordinate& site, const PLPlate* plate, unsigned int age_myr);
+	PaleoLatitudeEntry _calculatePaleolatitudeRange(const Coordinate& site, const PLPlate* plate, unsigned int age_myr, const PLEulerPolesReconstructions::EPEntry& euler_entry, const PLPolarWanderPaths::PWPEntry& pwp_entry);
 
 	template<class T> static string _ppMatrix(const bnu::matrix<T>& matrix);
 	template<class T> static string _ppVector(const bnu::vector<T>& vector);

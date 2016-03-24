@@ -9,6 +9,7 @@
 
 #include "PLPlate.h"
 #include <algorithm>
+#include <vector>
 using namespace std;
 using namespace paleo_latitude;
 
@@ -106,13 +107,20 @@ unsigned int PLEulerPolesReconstructions::EPEntry::numColumns() const {
 	return 6;
 }
 
-const PLEulerPolesReconstructions::EPEntry& PLEulerPolesReconstructions::getEntry(const PLPlate* plate, unsigned int age) const {
+const vector<PLEulerPolesReconstructions::EPEntry> PLEulerPolesReconstructions::getEntries(const PLPlate* plate, unsigned int age) const {
+	vector<PLEulerPolesReconstructions::EPEntry> res;
+
 	for (const EPEntry& entry : _csvdata->getEntries()){
-		if (entry.age == age && entry.plate_id == plate->getId()) return entry;
+		if (entry.age == age && entry.plate_id == plate->getId()) res.push_back(entry);
 	}
-	Exception ex;
-	ex << "No entry for age=" << age << " and plate_id=" << plate->getId() << " found in Euler pole table?";
-	throw ex;
+
+	if (res.size() == 0){
+		Exception ex;
+		ex << "No entry for age=" << age << " and plate_id=" << plate->getId() << " found in Euler pole table?";
+		throw ex;
+	}
+
+	return res;
 }
 
 

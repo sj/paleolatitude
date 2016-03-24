@@ -183,13 +183,24 @@ bool PaleoLatitude::compute(){
 PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRangeForAge(const Coordinate& site, const PLPlate* plate, unsigned int age_myr){
 	__IF_DEBUG(Logger::debug << "Calculating paleolatitude for (lat=" << site.latitude << ",lon=" << site.longitude << ") for age=" << age_myr << endl);
 
+	// Get Euler pole and reference pole
+	const vector<PLEulerPolesReconstructions::EPEntry> euler_entries = _euler->getEntries(plate, age_myr);
+	const PLPolarWanderPaths::PWPEntry pwp_entry = _pwp->getEntry(*plate, age_myr);
+
+	if (euler_entries.size() == 1) return _calculatePaleolatitudeRange(site, plate, age_myr, euler_entries[0], pwp_entry);
+
+	// TODO: implement case in which two euler rotation points are returned (where data overlaps)
+	Exception e;
+	e << "Not implemented" << endl;
+	throw e;
+}
+
+PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRange(const Coordinate& site, const PLPlate* plate, unsigned int age_myr, const PLEulerPolesReconstructions::EPEntry& euler_entry, const PLPolarWanderPaths::PWPEntry& pwp_entry){
 	const double lambda_s = site.latitude;
 	const double lambda_s_rad = _deg2rad(lambda_s);
 	const double phi_s  = site.longitude;
 	const double phi_s_rad = _deg2rad(phi_s);
 
-	// Get Euler pole and reference pole
-	const PLEulerPolesReconstructions::EPEntry& euler_entry = _euler->getEntry(plate, age_myr);
 	const double lambda_e = euler_entry.latitude;
 	const double lambda_e_rad = _deg2rad(lambda_e);
 	const double phi_e = euler_entry.longitude;
@@ -200,7 +211,7 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRangeFor
 
 	// Get latitude and longitude of reference pole from
 	// relevant entry from apparent polar wander paths
-	const PLPolarWanderPaths::PWPEntry pwp_entry = _pwp->getEntry(age_myr);
+
 	const double lambda_p = pwp_entry.latitude;
 	const double lambda_p_rad = _deg2rad(lambda_p);
 	const double phi_p  = pwp_entry.longitude;

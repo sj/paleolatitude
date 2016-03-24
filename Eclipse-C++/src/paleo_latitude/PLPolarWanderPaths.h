@@ -8,6 +8,7 @@
 #ifndef PLPOLARWANDERPATHS_H_
 #define PLPOLARWANDERPATHS_H_
 #include <vector>
+#include "PLPlate.h"
 #include "../util/Logger.h"
 #include "../util/Util.h"
 #include "../util/CSVFileData.h"
@@ -26,6 +27,7 @@ public:
 		void set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno) override;
 		unsigned int numColumns() const override;
 
+		unsigned int plate_id = 0;
 		unsigned int age = 0;
 		double a95 = 0;
 		double latitude = 0;
@@ -35,8 +37,9 @@ public:
 	PLPolarWanderPaths(const PLPolarWanderPaths&) = delete;
 	~PLPolarWanderPaths();
 
-	PWPEntry getEntry(unsigned int age);
-	const vector<PWPEntry>& getEntries() const;
+	const PWPEntry getEntry(unsigned int plate_id, unsigned int age) const;
+	const PWPEntry getEntry(const PLPlate& plate, unsigned int age) const;
+	const vector<PWPEntry>& getAllEntries() const;
 
 	static PLPolarWanderPaths* readFromFile(string filename);
 
