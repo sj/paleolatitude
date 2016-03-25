@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 		("max-age", bpo::value<double>(&pl_params->age_max), "set the upper bound on age (in million years)")
 		("age-error", bpo::value<double>(&pl_params->age_pm), "sets the error (+/-) around age (in million years)")
 		("age-pm", bpo::value<double>(&pl_params->age_pm), "sets the error (+/-) around age (in million years, alias for age-error)")
-		("input-apwp-csv", bpo::value<string>(&pl_params->input_apwp_csv)->default_value(pl_params->input_apwp_csv), "path to apparent polar wander paths specification of plate 701 (in CSV format)")
+		("input-apwp-csv", bpo::value<string>(&pl_params->input_apwp_csv)->default_value(pl_params->input_apwp_csv), "path to apparent polar wander paths specification of plates (in CSV format)")
 		("input-euler-rotation-csv", bpo::value<string>(&pl_params->input_euler_rotation_csv)->default_value(pl_params->input_euler_rotation_csv), "path to specification of Euler rotation parameters of polar wander path (in CSV format)")
 		("input-plates-file", bpo::value<string>(&pl_params->input_plates_file)->default_value(pl_params->input_plates_file), "path to specification of tectonic plates locations (GPML or KML format)")
 		("csv-output-file", bpo::value<string>(), "enables detailed CSV output to specified file")

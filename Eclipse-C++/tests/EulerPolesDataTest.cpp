@@ -28,7 +28,7 @@ TEST_F(EulerPolesDataTest, TestValueBounds){
 	for (string csvfile : EulerPolesDataTest::CSV_FILES){
 		PLEulerPolesReconstructions* euler = PLEulerPolesReconstructions::readFromFile(csvfile);
 
-		auto entries = euler->getEntries();
+		auto entries = euler->getAllEntries();
 		for (auto entry : entries){
 			ASSERT_LE(0, entry.age) << "unexpected negative age";
 			ASSERT_GE(1000, entry.age) << "age more than 1000 million years";

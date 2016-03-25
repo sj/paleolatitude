@@ -107,16 +107,21 @@ unsigned int PLEulerPolesReconstructions::EPEntry::numColumns() const {
 	return 6;
 }
 
+
 const vector<PLEulerPolesReconstructions::EPEntry> PLEulerPolesReconstructions::getEntries(const PLPlate* plate, unsigned int age) const {
+	return getEntries(plate->getId(), age);
+}
+
+const vector<PLEulerPolesReconstructions::EPEntry> PLEulerPolesReconstructions::getEntries(unsigned int plate_id, unsigned int age) const {
 	vector<PLEulerPolesReconstructions::EPEntry> res;
 
 	for (const EPEntry& entry : _csvdata->getEntries()){
-		if (entry.age == age && entry.plate_id == plate->getId()) res.push_back(entry);
+		if (entry.age == age && entry.plate_id == plate_id) res.push_back(entry);
 	}
 
 	if (res.size() == 0){
 		Exception ex;
-		ex << "No entry for age=" << age << " and plate_id=" << plate->getId() << " found in Euler pole table?";
+		ex << "No entry for age=" << age << " and plate_id=" << plate_id << " found in Euler pole table?";
 		throw ex;
 	}
 

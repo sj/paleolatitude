@@ -53,6 +53,8 @@ public:
 	 * EPEntry, but in rare cases two entries will be returned. This happens at the cross-over
 	 * point at which rotation is expressed relative to two plates (e.g. plate 102 at 320 Ma in Torsvik).
 	 */
+	const vector<EPEntry> getEntries(unsigned int plate_id, unsigned int age) const;
+
 	const vector<EPEntry> getEntries(const PLPlate* plate, unsigned int age) const;
 
 	const vector<EPEntry>& getAllEntries() const;

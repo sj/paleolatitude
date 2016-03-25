@@ -185,9 +185,12 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRangeFor
 
 	// Get Euler pole and reference pole
 	const vector<PLEulerPolesReconstructions::EPEntry> euler_entries = _euler->getEntries(plate, age_myr);
-	const PLPolarWanderPaths::PWPEntry pwp_entry = _pwp->getEntry(*plate, age_myr);
 
-	if (euler_entries.size() == 1) return _calculatePaleolatitudeRange(site, plate, age_myr, euler_entries[0], pwp_entry);
+	if (euler_entries.size() == 1){
+		const PLEulerPolesReconstructions::EPEntry& euler_entry = euler_entries[0];
+		const PLPolarWanderPaths::PWPEntry pwp_entry = _pwp->getEntry(euler_entry.rotation_rel_to_plate_id, age_myr);
+		return _calculatePaleolatitudeRange(site, plate, age_myr, euler_entry, pwp_entry);
+	}
 
 	// TODO: implement case in which two euler rotation points are returned (where data overlaps)
 	Exception e;

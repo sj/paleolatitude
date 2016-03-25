@@ -39,8 +39,7 @@ void PLPolarWanderPaths::_readFromFile(string filename){
 }
 
 const PLPolarWanderPaths::PWPEntry PLPolarWanderPaths::getEntry(const PLPlate& plate, unsigned int age) const {
-	const unsigned int plate_id = plate.getId();
-	return this->getEntry(plate_id, age);
+	return this->getEntry(plate.getId(), age);
 }
 
 
@@ -49,10 +48,10 @@ const PLPolarWanderPaths::PWPEntry PLPolarWanderPaths::getEntry(unsigned int pla
 		if (entry.age == age && entry.plate_id == plate_id) return entry;
 	}
 
-	stringstream ex;
+	Exception ex;
 	ex << "No apparent polar wander path known for plate ID " << plate_id << " and age " << age;
 
-	throw Exception(ex.str());
+	throw ex;
 }
 
 
@@ -74,11 +73,6 @@ void PLPolarWanderPaths::PWPEntry::set(unsigned int col_index, const string& val
 
 	if (col_index == 1){
 		this->parseString(value, this->age, filename, lineno);
-
-		if (entries.size() > 0 && entries.back().age > age){
-			// Last entry has larger age than this entry - expecting them in increasing order
-			throw PLFileParseException("Expecting data entries in '" + filename + "' to have strictly increasing age");
-		}
 	}
 
 	if (col_index == 2) this->parseString(value, this->a95, filename, lineno);
@@ -87,7 +81,7 @@ void PLPolarWanderPaths::PWPEntry::set(unsigned int col_index, const string& val
 }
 
 unsigned int PLPolarWanderPaths::PWPEntry::numColumns() const {
-	return 4;
+	return 5;
 }
 
 
