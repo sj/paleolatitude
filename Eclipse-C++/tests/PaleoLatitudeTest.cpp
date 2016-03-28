@@ -96,7 +96,7 @@ TEST_F(PaleoLatitudeTest, TestDateOrder){
 
 	auto relEntries = pl.getRelevantPaleolatitudeEntries();
 	for (unsigned int i = 0; i < relEntries.size() - 1; i++){ // deliberate size() - 1: always looking forward 1 item
-		ASSERT_LT(relEntries[i].age_years, relEntries[i+1].age_years) << "Paleolatitude entries returned in wrong order";
+		ASSERT_LE(relEntries[i].age_years, relEntries[i+1].age_years) << "Paleolatitude entries returned in wrong order";
 	}
 
 	// Just make sure that there is at least one entry to the left, and one to the right of the bounds
