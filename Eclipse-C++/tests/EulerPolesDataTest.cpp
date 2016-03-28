@@ -9,6 +9,7 @@
 #include "../src/paleo_latitude/PLEulerPolesReconstructions.h"
 
 #include <vector>
+#include <set>
 
 #include "../src/paleo_latitude/PLPlate.h"
 using namespace std;
@@ -47,6 +48,43 @@ TEST_F(EulerPolesDataTest, TestValueBounds){
 			ASSERT_GE(120.01, entry.rotation) << rot_err;
 		}
 	}
+}
+
+TEST_F(EulerPolesDataTest, TestMultipleRelativePlateIdsForAge){
+	for (string csvfile : EulerPolesDataTest::CSV_FILES){
+		PLEulerPolesReconstructions* euler = PLEulerPolesReconstructions::readFromFile(csvfile);
+
+		set<unsigned int> plate_ids = euler->getPlateIds();
+		for (unsigned int plate_id : plate_ids){
+			vector<const PLEulerPolesReconstructions::EPEntry*> entries = euler->getEntries(plate_id);
+			sort(entries.begin(), entries.end(), PLEulerPolesReconstructions::EPEntry::compareByAge);
+
+			const PLEulerPolesReconstructions::EPEntry* prev = NULL;
+			const PLEulerPolesReconstructions::EPEntry* crossover_at = NULL;
+			for (const PLEulerPolesReconstructions::EPEntry* entry : entries){
+				if (prev != NULL && prev->age == entry->age){
+					// Duplicate age entry. This must be the cross-over point between two
+					// reference plates. Make sure that there is only a single cross-over
+					// point - this is what the code assumes. If this changes
+					// (i.e., multiple cross-over points between relative plates), then
+					// all code needs double-checking and amending.
+					// Note that this test is mostly designed to make sure that the overlap
+					// between two methods of computing the paleolatitude is not more than
+					// one age data point.
+					if (crossover_at != NULL){
+						// Already found a cross-over point
+						FAIL() << "Multiple duplicate Euler pole rotation data for plate " << plate_id << " in '" << csvfile << "', only one duplicate allowed per plate: first duplicate at age " << crossover_at->age << " (plate " << crossover_at->plate_id << ", rotation relative to: " << crossover_at->rotation_rel_to_plate_id << ", line " << crossover_at->getLineNo() << "), another one at " << entry->age << " (plate " << entry->plate_id << ", rotation relative to: " << entry->rotation_rel_to_plate_id << ", line " << entry->getLineNo() << ")";
+					}
+
+					crossover_at = entry;
+				}
+
+				prev = entry;
+			} // end foreach entry
+		} // end foreach plate ID
+
+		delete euler;
+	} // end foreach CSV file
 }
 
 

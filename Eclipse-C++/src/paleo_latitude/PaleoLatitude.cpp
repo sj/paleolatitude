@@ -116,12 +116,63 @@ bool PaleoLatitude::compute(){
 	// Paleolatitudes for a series of ages:
 	// age, paleolat_min, paleolat, paleolat_max
 	_result.clear();
+	_result.reserve(compute_ages.size() * 2);
 
 	// Compute values for relevant ages, add interpolated values in between
 	for (unsigned int i = 0; i < compute_ages.size(); i++){
 		const unsigned int curr_age_myr = compute_ages[i];
 		const unsigned long curr_age_years = curr_age_myr * 1000000;
 
+		const vector<PaleoLatitudeEntry> palats = _calculatePaleolatitudeRangeForAge(site, _plate, curr_age_myr);
+		_result.insert(std::end(_result), std::begin(palats), std::end(palats));
+	}
+
+	// Sort the results (from more recent to longer ago)
+	sort(_result.begin(), _result.end(), PaleoLatitude::PaleoLatitudeEntry::compareByAge);
+
+	// Perform interpolation (if needed)
+	unsigned int size_before_interpolation = _result.size();
+
+	for (unsigned int i = 0; i < _result.size() - 1; i++){ // note the deliberate size() - 1 !
+		PaleoLatitudeEntry& curr_entry = _result[i];
+		PaleoLatitudeEntry& next_entry = _result[i+1]; // possible because loop ranges to size() - 2
+
+		const unsigned int curr_age_myr = curr_entry.getAgeInMYR();
+		const unsigned int next_age_myr = next_entry.getAgeInMYR();
+
+		if (age_min_myr > curr_age_myr && age_min_myr < next_age_myr){
+			// age_min lies between the current and the next age - interpolate
+			PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(curr_entry, next_entry, age_min_years);
+			_result.push_back(interpolated);
+		}
+
+		if (_params->hasAge()){
+			// Specific age requested - make sure we actually provide an answer
+			// for that age (we might have to interpolate)
+			const double age_years = _params->getAgeInYears();
+
+			if (age_myr > curr_age_myr && age_myr < next_age_myr){
+				// requested age in between current and next age - interpolate
+				PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(curr_entry, next_entry, age_years);
+				_result.push_back(interpolated);
+			}
+		} // else: no specific age requested
+
+		if (age_max_myr > curr_age_myr && age_max_myr < next_age_myr){
+			// age_max in between current and next age - interpolate
+			PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(curr_entry, next_entry, age_max_years);
+			_result.push_back(interpolated);
+		}
+	}
+
+
+	if (size_before_interpolation != _result.size()){
+		// Interpolated data added to end of result vector - sort again.
+		sort(_result.begin(), _result.end(), PaleoLatitude::PaleoLatitudeEntry::compareByAge);
+	}
+
+
+		/**** OLD implementation
 		PaleoLatitudeEntry palat;
 		if (_result.size() > 0 && _result.back().age_years == curr_age_years){
 			// Already computed in previous iteration
@@ -165,8 +216,8 @@ bool PaleoLatitude::compute(){
 			// While we have the result, we might as well store it (it won't be stored
 			// twice, see above)
 			_result.push_back(next_palat);
-		}
-	}
+		} END OLD IMPLEMENTATION***/
+
 
 	for (PaleoLatitudeEntry entry : _result){
 		Logger::info << entry.to_string() << endl;
@@ -180,46 +231,44 @@ bool PaleoLatitude::compute(){
 /**
  * Step 3
  */
-PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRangeForAge(const Coordinate& site, const PLPlate* plate, unsigned int age_myr){
+const vector<PaleoLatitude::PaleoLatitudeEntry> PaleoLatitude::_calculatePaleolatitudeRangeForAge(const Coordinate& site, const PLPlate* plate, unsigned int age_myr) const {
 	__IF_DEBUG(Logger::debug << "Calculating paleolatitude for (lat=" << site.latitude << ",lon=" << site.longitude << ") for age=" << age_myr << endl);
 
-	// Get Euler pole and reference pole
-	const vector<PLEulerPolesReconstructions::EPEntry> euler_entries = _euler->getEntries(plate, age_myr);
+	// Get Euler pole and reference pole. For some ages, this will yield multiple (up to two)
+	// Euler poles (relative to different plates)
+	const vector<const PLEulerPolesReconstructions::EPEntry*> euler_entries = _euler->getEntries(plate, age_myr);
 
-	if (euler_entries.size() == 1){
-		const PLEulerPolesReconstructions::EPEntry& euler_entry = euler_entries[0];
-		const PLPolarWanderPaths::PWPEntry pwp_entry = _pwp->getEntry(euler_entry.rotation_rel_to_plate_id, age_myr);
-		return _calculatePaleolatitudeRange(site, plate, age_myr, euler_entry, pwp_entry);
+	vector<PaleoLatitude::PaleoLatitudeEntry> res;
+	for (const PLEulerPolesReconstructions::EPEntry* euler_entry : euler_entries){
+		const PLPolarWanderPaths::PWPEntry* pwp_entry = _pwp->getEntry(euler_entry->rotation_rel_to_plate_id, age_myr);
+		res.push_back(_calculatePaleolatitudeRange(site, plate, age_myr, euler_entry, pwp_entry));
 	}
 
-	// TODO: implement case in which two euler rotation points are returned (where data overlaps)
-	Exception e;
-	e << "Not implemented" << endl;
-	throw e;
+	return res;
 }
 
-PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRange(const Coordinate& site, const PLPlate* plate, unsigned int age_myr, const PLEulerPolesReconstructions::EPEntry& euler_entry, const PLPolarWanderPaths::PWPEntry& pwp_entry){
+const PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRange(const Coordinate& site, const PLPlate* plate, unsigned int age_myr, const PLEulerPolesReconstructions::EPEntry* euler_entry, const PLPolarWanderPaths::PWPEntry* pwp_entry) const {
 	const double lambda_s = site.latitude;
 	const double lambda_s_rad = _deg2rad(lambda_s);
 	const double phi_s  = site.longitude;
 	const double phi_s_rad = _deg2rad(phi_s);
 
-	const double lambda_e = euler_entry.latitude;
+	const double lambda_e = euler_entry->latitude;
 	const double lambda_e_rad = _deg2rad(lambda_e);
-	const double phi_e = euler_entry.longitude;
+	const double phi_e = euler_entry->longitude;
 	const double phi_e_rad = _deg2rad(phi_e);
-	const double omega = euler_entry.rotation;
+	const double omega = euler_entry->rotation;
 	const double omega_rad = _deg2rad(omega);
 
 
 	// Get latitude and longitude of reference pole from
 	// relevant entry from apparent polar wander paths
 
-	const double lambda_p = pwp_entry.latitude;
+	const double lambda_p = pwp_entry->latitude;
 	const double lambda_p_rad = _deg2rad(lambda_p);
-	const double phi_p  = pwp_entry.longitude;
+	const double phi_p  = pwp_entry->longitude;
 	const double phi_p_rad = _deg2rad(phi_p);
-	const double a95 = pwp_entry.a95;
+	const double a95 = pwp_entry->a95;
 
 	const double theta_e = 90 - lambda_e;		// colatitude of Euler pole
 	const double theta_e_rad = _deg2rad(theta_e);
@@ -387,7 +436,7 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRange(co
 
 		Logger::info << "Applying correction for bounds over south pole: [" << lambda_min << "," << lambda_max << "] becomes ";
 		if (lambda < 0){
-			// Things went south on the south pole (boom boom)
+			// Things went south on the south pole (ba dum tssh)
 			lambda_max = max(-abs(lambda_min), -abs(lambda_max));
 			lambda_min = -90;
 		} else {
@@ -400,7 +449,7 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRange(co
 	}
 
 	const unsigned long age_years = age_myr * 1000000;
-	return PaleoLatitudeEntry(age_years, age_years, age_years, lambda_min, lambda, lambda_max);
+	return PaleoLatitudeEntry(age_years, age_years, age_years, lambda_min, lambda, lambda_max, euler_entry, pwp_entry);
 }
 
 double PaleoLatitude::_deg2rad(const double& deg){
@@ -448,7 +497,7 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::PaleoLatitudeEntry::interpolate
 	const double palat = other_younger.palat + (delta_palat / delta_age) * rel_age;
 	const double palat_max = other_younger.palat_max + (delta_palat_max / delta_age) * rel_age;
 
-	PaleoLatitudeEntry res = PaleoLatitudeEntry(age_years, age_years, age_years, palat_min, palat, palat_max);
+	PaleoLatitudeEntry res = PaleoLatitudeEntry(age_years, age_years, age_years, palat_min, palat, palat_max, NULL, NULL);
 	res.is_interpolated = true;
 	return res;
 }
@@ -515,7 +564,7 @@ void PaleoLatitude::writeCSV(ostream& output_stream) {
 
 	for (PaleoLatitudeEntry entry : _result){
 		output_stream.precision(2);
-		output_stream << entry.getAgeInMIY() << ";";
+		output_stream << entry.getAgeInMYR() << ";";
 
 		output_stream.precision(5);
 		output_stream << entry.palat << ";" << entry.palat_min << ";" << entry.palat_max << ";";
@@ -573,8 +622,21 @@ void PaleoLatitude::writeKML(ostream& output_stream) {
 			<< "</kml>" << endl;
 }
 
-double PaleoLatitude::PaleoLatitudeEntry::getAgeInMIY() const {
+double PaleoLatitude::PaleoLatitudeEntry::getAgeInMYR() const {
 	return (age_years / 1000000.0);
+}
+
+bool PaleoLatitude::PaleoLatitudeEntry::compareByAge(const PaleoLatitudeEntry& a, const PaleoLatitudeEntry& b) {
+	if (a.age_years == b.age_years){
+		// Entries that were computed relative to Africa come first. This makes sure that
+		// the youngest paleolatitude entries (which are all computed relative to Africa)
+		// come first, before relative movement to other plates is considered (for older ages).
+		if (a.euler_data != NULL && b.euler_data != NULL){
+			if (a.euler_data->rotation_rel_to_plate_id == 701) return true;
+			if (b.euler_data->rotation_rel_to_plate_id == 701) return false;
+		}
+	}
+	return (a.age_years < b.age_years);
 }
 
 const PLPlate* PaleoLatitude::getPlate() const {

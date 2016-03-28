@@ -100,8 +100,8 @@ TEST_F(PaleoLatitudeTest, TestDateOrder){
 	}
 
 	// Just make sure that there is at least one entry to the left, and one to the right of the bounds
-	ASSERT_LE(relEntries[0].getAgeInMIY(), params->age_min) << "Computation did not return entry on/outside lower age bound of " << params->age_min;
-	ASSERT_GE(relEntries[relEntries.size() - 1].getAgeInMIY(), params->age_max) << "Computation did not return entry on/outside lower age bound of " << params->age_max;
+	ASSERT_LE(relEntries[0].getAgeInMYR(), params->age_min) << "Computation did not return entry on/outside lower age bound of " << params->age_min;
+	ASSERT_GE(relEntries[relEntries.size() - 1].getAgeInMYR(), params->age_max) << "Computation did not return entry on/outside lower age bound of " << params->age_max;
 
 
 	delete params;

@@ -7,7 +7,7 @@
 
 #ifndef PLEULERPOLESRECONSTRUCTIONS_H_
 #define PLEULERPOLESRECONSTRUCTIONS_H_
-
+#include <set>
 #include "../util/CSVFileData.h"
 
 namespace paleo_latitude {
@@ -29,9 +29,12 @@ class PLPlate;
 class PLEulerPolesReconstructions {
 public:
 	struct EPEntry : public CSVFileData<EPEntry>::Entry {
-		EPEntry(const CSVFileData<EPEntry>& parent, unsigned int line_no) : CSVFileData<EPEntry>::Entry(parent, line_no){}
+		EPEntry(CSVFileData<EPEntry>* parent, unsigned int line_no) : CSVFileData<EPEntry>::Entry(parent, line_no){}
 		void set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno) override;
 		unsigned int numColumns() const override;
+
+		static bool compareByAge(const EPEntry* a, const EPEntry* b);
+
 
 		unsigned int plate_id = 0;
 		unsigned int age = 0;
@@ -53,9 +56,19 @@ public:
 	 * EPEntry, but in rare cases two entries will be returned. This happens at the cross-over
 	 * point at which rotation is expressed relative to two plates (e.g. plate 102 at 320 Ma in Torsvik).
 	 */
-	const vector<EPEntry> getEntries(unsigned int plate_id, unsigned int age) const;
+	vector<const EPEntry*> getEntries(unsigned int plate_id, unsigned int age) const;
 
-	const vector<EPEntry> getEntries(const PLPlate* plate, unsigned int age) const;
+	/**
+	 * Returns all Euler poles for a given plate ID.
+	 */
+	vector<const EPEntry*> getEntries(unsigned int plate_id) const;
+
+	/**
+	 * Returns all plate IDs found in the Euler data
+	 */
+	set<unsigned int> getPlateIds() const;
+
+	vector<const EPEntry*> getEntries(const PLPlate* plate, unsigned int age) const;
 
 	const vector<EPEntry>& getAllEntries() const;
 

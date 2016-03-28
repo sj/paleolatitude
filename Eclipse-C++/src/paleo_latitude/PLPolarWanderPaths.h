@@ -23,7 +23,7 @@ namespace paleo_latitude {
 class PLPolarWanderPaths {
 public:
 	struct PWPEntry : public CSVFileData<PWPEntry>::Entry {
-		PWPEntry(const CSVFileData<PWPEntry>& parent, unsigned int line_no) : CSVFileData<PWPEntry>::Entry(parent, line_no){}
+		PWPEntry(CSVFileData<PWPEntry>* parent, unsigned int line_no) : CSVFileData<PWPEntry>::Entry(parent, line_no){}
 		void set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno) override;
 		unsigned int numColumns() const override;
 
@@ -37,8 +37,8 @@ public:
 	PLPolarWanderPaths(const PLPolarWanderPaths&) = delete;
 	~PLPolarWanderPaths();
 
-	const PWPEntry getEntry(unsigned int plate_id, unsigned int age) const;
-	const PWPEntry getEntry(const PLPlate& plate, unsigned int age) const;
+	const PWPEntry* getEntry(unsigned int plate_id, unsigned int age) const;
+	const PWPEntry* getEntry(const PLPlate& plate, unsigned int age) const;
 	const vector<PWPEntry>& getAllEntries() const;
 
 	static PLPolarWanderPaths* readFromFile(string filename);

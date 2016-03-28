@@ -29,6 +29,9 @@ using namespace paleo_latitude;
 using namespace std;
 
 
+const unsigned int PLPlates::PLATE_ID_AFRICA = 701;
+
+
 PLPlates::PLPlates() {}
 
 PLPlates::~PLPlates() {

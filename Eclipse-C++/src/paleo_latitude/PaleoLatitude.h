@@ -55,18 +55,31 @@ class PaleoLatitude {
 
 public:
 	struct PaleoLatitudeEntry {
-		PaleoLatitudeEntry() : age_years_lower_bound(0), age_years(0), age_years_upper_bound(0), palat_min(0), palat(0), palat_max(0) {}
-		PaleoLatitudeEntry(unsigned long age_years_lower_bound_, unsigned long age_years_, unsigned long age_years_upper_bound_, double palat_min_, double palat_, double palat_max_) :
-			age_years_lower_bound(age_years_lower_bound_), age_years(age_years_), age_years_upper_bound(age_years_upper_bound_), palat_min(palat_min_), palat(palat_), palat_max(palat_max_){}
+		PaleoLatitudeEntry() : age_years_lower_bound(0), age_years(0), age_years_upper_bound(0), palat_min(0), palat(0), palat_max(0), euler_data(NULL), apwp_data(NULL) {}
+		PaleoLatitudeEntry(unsigned long age_years_lower_bound_, unsigned long age_years_, unsigned long age_years_upper_bound_, double palat_min_, double palat_, double palat_max_, const PLEulerPolesReconstructions::EPEntry* euler_data_, const PLPolarWanderPaths::PWPEntry* apwp_data_) :
+			age_years_lower_bound(age_years_lower_bound_), age_years(age_years_), age_years_upper_bound(age_years_upper_bound_), palat_min(palat_min_), palat(palat_), palat_max(palat_max_), euler_data(euler_data_), apwp_data(apwp_data_){}
 
 		string to_string();
 		static PaleoLatitudeEntry interpolate(const PaleoLatitudeEntry& other_younger, const PaleoLatitudeEntry& other_older, unsigned long age_years);
 
-		double getAgeInMIY() const;
+		double getAgeInMYR() const;
+
+		static bool compareByAge(const PaleoLatitudeEntry& a, const PaleoLatitudeEntry& b);
+
 		unsigned long age_years_lower_bound, age_years, age_years_upper_bound;
 
 		double palat_min, palat, palat_max;
 		bool is_interpolated = false;
+
+		/**
+		 * Euler rotation data entry used to compute this paleolatitude
+		 */
+		const PLEulerPolesReconstructions::EPEntry* euler_data = NULL;
+
+		/**
+		 * Polar wander path data entry used to compute this paleolatitude
+		 */
+		const PLPolarWanderPaths::PWPEntry* apwp_data = NULL;
 	};
 
 	PaleoLatitude();
@@ -142,8 +155,8 @@ private:
 
 	vector<PaleoLatitudeEntry> _result;
 
-	PaleoLatitudeEntry _calculatePaleolatitudeRangeForAge(const Coordinate& site, const PLPlate* plate, unsigned int age_myr);
-	PaleoLatitudeEntry _calculatePaleolatitudeRange(const Coordinate& site, const PLPlate* plate, unsigned int age_myr, const PLEulerPolesReconstructions::EPEntry& euler_entry, const PLPolarWanderPaths::PWPEntry& pwp_entry);
+	const vector<PaleoLatitudeEntry> _calculatePaleolatitudeRangeForAge(const Coordinate& site, const PLPlate* plate, unsigned int age_myr) const;
+	const PaleoLatitudeEntry _calculatePaleolatitudeRange(const Coordinate& site, const PLPlate* plate, unsigned int age_myr, const PLEulerPolesReconstructions::EPEntry* euler_entry, const PLPolarWanderPaths::PWPEntry* pwp_entry) const;
 
 	template<class T> static string _ppMatrix(const bnu::matrix<T>& matrix);
 	template<class T> static string _ppVector(const bnu::vector<T>& vector);

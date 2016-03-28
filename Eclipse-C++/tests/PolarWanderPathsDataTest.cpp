@@ -30,15 +30,15 @@ const array<string, 3> PolarWanderPathsDataTest::CSV_FILES = {
 
 TEST_F(PolarWanderPathsDataTest, Test10ma701){
 	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_VANDERVOO_CSV);
-	PLPolarWanderPaths::PWPEntry e = p->getEntry(701, 10);
-	ASSERT_GE(1.9, e.a95);
-	ASSERT_LE(0, e.a95);
+	const PLPolarWanderPaths::PWPEntry* e = p->getEntry(701, 10);
+	ASSERT_GE(1.9, e->a95);
+	ASSERT_LE(0, e->a95);
 }
 
 TEST_F(PolarWanderPathsDataTest, Test200ma701){
 	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_VANDERVOO_CSV);
-	PLPolarWanderPaths::PWPEntry e = p->getEntry(701, 200);
-	ASSERT_LE(0, e.a95);
+	const PLPolarWanderPaths::PWPEntry* e = p->getEntry(701, 200);
+	ASSERT_LE(0, e->a95);
 
 
 }

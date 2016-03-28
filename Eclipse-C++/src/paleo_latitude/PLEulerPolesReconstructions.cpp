@@ -10,6 +10,7 @@
 #include "PLPlate.h"
 #include <algorithm>
 #include <vector>
+#include <set>
 using namespace std;
 using namespace paleo_latitude;
 
@@ -46,6 +47,11 @@ vector<unsigned int> PLEulerPolesReconstructions::getRelevantAges(const PLPlate*
 
 
 		if (entry.age >= min && entry.age <= max){
+			if (!res.empty() && res.back() == entry.age){
+				// Duplicate age entry in CSV (possible for cross-over between relative plates)
+				continue;
+			}
+
 			// CSV entry falls in between the min/max: this age should be included
 			// in the ages.
 			res.push_back(entry.age);
@@ -108,15 +114,39 @@ unsigned int PLEulerPolesReconstructions::EPEntry::numColumns() const {
 }
 
 
-const vector<PLEulerPolesReconstructions::EPEntry> PLEulerPolesReconstructions::getEntries(const PLPlate* plate, unsigned int age) const {
+bool PLEulerPolesReconstructions::EPEntry::compareByAge(const EPEntry* a, const EPEntry* b) {
+	return (a->age < b->age);
+}
+
+
+vector<const PLEulerPolesReconstructions::EPEntry*> PLEulerPolesReconstructions::getEntries(unsigned int plate_id) const {
+	vector<const PLEulerPolesReconstructions::EPEntry*> res;
+
+	for (const EPEntry& entry : _csvdata->getEntries()){
+		if (entry.plate_id == plate_id) res.push_back(&entry);
+	}
+	return res;
+}
+
+set<unsigned int> PLEulerPolesReconstructions::getPlateIds() const {
+	set<unsigned int> res;
+	for (const EPEntry& entry : _csvdata->getEntries()){
+		res.insert(entry.plate_id);
+	}
+
+	return res;
+}
+
+
+vector<const PLEulerPolesReconstructions::EPEntry*> PLEulerPolesReconstructions::getEntries(const PLPlate* plate, unsigned int age) const {
 	return getEntries(plate->getId(), age);
 }
 
-const vector<PLEulerPolesReconstructions::EPEntry> PLEulerPolesReconstructions::getEntries(unsigned int plate_id, unsigned int age) const {
-	vector<PLEulerPolesReconstructions::EPEntry> res;
+vector<const PLEulerPolesReconstructions::EPEntry*> PLEulerPolesReconstructions::getEntries(unsigned int plate_id, unsigned int age) const {
+	vector<const PLEulerPolesReconstructions::EPEntry*> res;
 
 	for (const EPEntry& entry : _csvdata->getEntries()){
-		if (entry.age == age && entry.plate_id == plate_id) res.push_back(entry);
+		if (entry.age == age && entry.plate_id == plate_id) res.push_back(&entry);
 	}
 
 	if (res.size() == 0){

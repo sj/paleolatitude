@@ -30,3 +30,4 @@ bool Util::double_eq(const double& a, const double& b){
 	return (diff / (fabs(a) + fabs(b)) < DOUBLE_COMPARISON_EPSILON);
 }
 
+

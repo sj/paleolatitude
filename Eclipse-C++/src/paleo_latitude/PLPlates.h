@@ -18,6 +18,7 @@ namespace paleo_latitude {
 
 class PLPlates {
 public:
+	const static unsigned int PLATE_ID_AFRICA;
 	virtual ~PLPlates();
 
 	const PLPlate* findPlate(const Coordinate& site) const;

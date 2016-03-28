@@ -38,14 +38,14 @@ void PLPolarWanderPaths::_readFromFile(string filename){
 	_csvdata->parseFile(filename);
 }
 
-const PLPolarWanderPaths::PWPEntry PLPolarWanderPaths::getEntry(const PLPlate& plate, unsigned int age) const {
+const PLPolarWanderPaths::PWPEntry* PLPolarWanderPaths::getEntry(const PLPlate& plate, unsigned int age) const {
 	return this->getEntry(plate.getId(), age);
 }
 
 
-const PLPolarWanderPaths::PWPEntry PLPolarWanderPaths::getEntry(unsigned int plate_id, unsigned int age) const {
+const PLPolarWanderPaths::PWPEntry* PLPolarWanderPaths::getEntry(unsigned int plate_id, unsigned int age) const {
 	for (const PWPEntry& entry : _csvdata->getEntries()){
-		if (entry.age == age && entry.plate_id == plate_id) return entry;
+		if (entry.age == age && entry.plate_id == plate_id) return &entry;
 	}
 
 	Exception ex;
@@ -67,7 +67,7 @@ void PLPolarWanderPaths::PWPEntry::set(unsigned int col_index, const string& val
 	// Column index 3: longitude (double)
 	// Column index 4: latitude (double)
 
-	auto entries = _container.getEntries();
+	auto entries = _container->getEntries();
 
 	if (col_index == 0) this->parseString(value, this->plate_id, filename, lineno);
 
