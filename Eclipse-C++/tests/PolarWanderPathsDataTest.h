@@ -17,7 +17,7 @@ using namespace std;
 class PolarWanderPathsDataTest : public ::testing::Test {
 
 public:
-	const static string TORSVIK_CSV;
+	const static string TORSVIK_VANDERVOO_CSV;
 	const static array<string, 3> CSV_FILES;
 };
 

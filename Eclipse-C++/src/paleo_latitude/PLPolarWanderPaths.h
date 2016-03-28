@@ -23,7 +23,7 @@ namespace paleo_latitude {
 class PLPolarWanderPaths {
 public:
 	struct PWPEntry : public CSVFileData<PWPEntry>::Entry {
-		PWPEntry(const CSVFileData<PWPEntry>& parent) : CSVFileData<PWPEntry>::Entry(parent){}
+		PWPEntry(const CSVFileData<PWPEntry>& parent, unsigned int line_no) : CSVFileData<PWPEntry>::Entry(parent, line_no){}
 		void set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno) override;
 		unsigned int numColumns() const override;
 

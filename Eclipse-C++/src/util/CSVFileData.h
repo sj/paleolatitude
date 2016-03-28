@@ -34,9 +34,14 @@ public:
 			return output;
 		}
 
+		unsigned int getLineNo(){
+			return _line_no;
+		}
+
 	protected:
-		Entry(const CSVFileData<EntryType>& parent) : _container(parent){}
+		Entry(const CSVFileData<EntryType>& parent, unsigned int line_no) : _container(parent), _line_no(line_no){}
 		const CSVFileData<EntryType>& _container;
+		const unsigned int _line_no;
 
 	private:
 		Entry() = delete;
@@ -75,7 +80,7 @@ public:
 			line_no++;
 			vector<string> values;
 
-			EntryType csv_entry(*this);
+			EntryType csv_entry(*this, line_no);
 
 			boost::split(values, line, boost::is_any_of(";,"));
 

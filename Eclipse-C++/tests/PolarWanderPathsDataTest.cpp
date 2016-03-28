@@ -18,25 +18,25 @@ using namespace std;
 using namespace paleo_latitude;
 
 
-const string PolarWanderPathsDataTest::TORSVIK_CSV = "data/apwp-torsvik-2012.csv";
+const string PolarWanderPathsDataTest::TORSVIK_VANDERVOO_CSV = "data/apwp-torsvik-2012-vandervoo-2015.csv";
 
 // Make sure the order of these files matches the order of files in EulerPolesDataTest.h:
 const array<string, 3> PolarWanderPathsDataTest::CSV_FILES = {
-		TORSVIK_CSV,
+		TORSVIK_VANDERVOO_CSV,
 		"data/apwp-besse-courtillot-2002.csv",
 		"data/apwp-kent-irving-2010.csv"
 };
 
 
 TEST_F(PolarWanderPathsDataTest, Test10ma701){
-	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_CSV);
+	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_VANDERVOO_CSV);
 	PLPolarWanderPaths::PWPEntry e = p->getEntry(701, 10);
 	ASSERT_GE(1.9, e.a95);
 	ASSERT_LE(0, e.a95);
 }
 
 TEST_F(PolarWanderPathsDataTest, Test200ma701){
-	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_CSV);
+	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_VANDERVOO_CSV);
 	PLPolarWanderPaths::PWPEntry e = p->getEntry(701, 200);
 	ASSERT_LE(0, e.a95);
 
@@ -44,7 +44,7 @@ TEST_F(PolarWanderPathsDataTest, Test200ma701){
 }
 
 TEST_F(PolarWanderPathsDataTest, Test9999ma701){
-	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_CSV);
+	PLPolarWanderPaths* p = PLPolarWanderPaths::readFromFile(PolarWanderPathsDataTest::TORSVIK_VANDERVOO_CSV);
 	ASSERT_THROW(p->getEntry(701, 9999), Exception);
 }
 
@@ -74,7 +74,7 @@ TEST_F(PolarWanderPathsDataTest, TestEulerAPWPDataConsistency){
 				apwp->getEntry(rel_plate_id, age);
 			} catch (Exception& ex){
 				stringstream this_error;
-				this_error << "Euler rotation data in '" << euler_file << "' requires an apparent polar wander path for plate " << rel_plate_id << " and age " << age << ", but '" << apwp_file << "' does not contain that data." << endl;
+				this_error << "Euler rotation data in '" << euler_file << "' (line " << euler_entry.getLineNo() << ") requires an apparent polar wander path for plate " << rel_plate_id << " and age " << age << ", but '" << apwp_file << "' does not contain that data." << endl;
 
 				cerr << this_error.str();
 				all_errors << this_error.str();
@@ -89,7 +89,7 @@ TEST_F(PolarWanderPathsDataTest, TestEulerAPWPDataConsistency){
 			try {
 				epr->getEntries(plate_id, age);
 			} catch (Exception& ex){
-				cerr << "Warning: apparent polar wander path available for plate ID " << plate_id << " and age " << age << " in '" << apwp_file << "', but this data is not referred to from Euler rotation data in '" << euler_file << "', so is never used?" << endl;
+				cerr << "Warning: apparent polar wander path available for plate ID " << plate_id << " and age " << age << " in '" << apwp_file << "' (line " << apwp_entry.getLineNo() << ", but this data is not referred to from Euler rotation data in '" << euler_file << "', so is never used?" << endl;
 			}
 		}
 	}

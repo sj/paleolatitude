@@ -124,7 +124,7 @@ bool PaleoLatitude::compute(){
 
 		PaleoLatitudeEntry palat;
 		if (_result.size() > 0 && _result.back().age_years == curr_age_years){
-			// Already computed in previous round
+			// Already computed in previous iteration
 			palat = _result.back();
 		} else {
 			palat = _calculatePaleolatitudeRangeForAge(site, _plate, curr_age_myr);

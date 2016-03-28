@@ -14,12 +14,12 @@
 using namespace std;
 using namespace paleo_latitude;
 
-const string EulerPolesDataTest::TORSVIK_CSV = "data/euler-torsvik-2012.csv";
+const string EulerPolesDataTest::TORSVIK_VANDERVOO_CSV = "data/euler-torsvik-2012-vandervoo-2015.csv";
 
 // All possible CSV files with Euler pole rotation parameters. Note: order of these
 // files should match the order in PolarWanderPathsDataTest.h!
 const array<string, 3> EulerPolesDataTest::CSV_FILES =  {
-		TORSVIK_CSV,
+		TORSVIK_VANDERVOO_CSV,
 		"data/euler-besse-courtillot-2002.csv",
 		"data/euler-kent-irving-2010.csv"
 };
@@ -52,7 +52,7 @@ TEST_F(EulerPolesDataTest, TestValueBounds){
 
 TEST_F(EulerPolesDataTest, TestRelevantAges1){
 	// This test assumes that the following ages are available: {10, 20, 30, 40, 50, 60}
-	PLEulerPolesReconstructions* ep = PLEulerPolesReconstructions::readFromFile(EulerPolesDataTest::TORSVIK_CSV);
+	PLEulerPolesReconstructions* ep = PLEulerPolesReconstructions::readFromFile(EulerPolesDataTest::TORSVIK_VANDERVOO_CSV);
 	vector<Coordinate>* dummy_vec = new vector<Coordinate>();
 	PLPlate* plate = new PLPlate(101, "North America", dummy_vec);
 
@@ -68,7 +68,7 @@ TEST_F(EulerPolesDataTest, TestRelevantAges1){
 
 TEST_F(EulerPolesDataTest, TestRelevantAges2){
 	// This test assumes that the following ages are available: {10, 20, 30, 40, 50, 60}
-	PLEulerPolesReconstructions* ep = PLEulerPolesReconstructions::readFromFile(EulerPolesDataTest::TORSVIK_CSV);
+	PLEulerPolesReconstructions* ep = PLEulerPolesReconstructions::readFromFile(EulerPolesDataTest::TORSVIK_VANDERVOO_CSV);
 	vector<Coordinate>* dummy_vec = new vector<Coordinate>();
 	PLPlate* plate = new PLPlate(101, "North America", dummy_vec);
 
@@ -86,7 +86,7 @@ TEST_F(EulerPolesDataTest, TestRelevantAges2){
 
 TEST_F(EulerPolesDataTest, TestRelevantAges3){
 	// This test assumes that the following ages are available: {10, 20, 30, 40, 50, 60}
-	PLEulerPolesReconstructions* ep = PLEulerPolesReconstructions::readFromFile(EulerPolesDataTest::TORSVIK_CSV);
+	PLEulerPolesReconstructions* ep = PLEulerPolesReconstructions::readFromFile(EulerPolesDataTest::TORSVIK_VANDERVOO_CSV);
 	vector<Coordinate>* dummy_vec = new vector<Coordinate>();
 	PLPlate* plate = new PLPlate(101, "North America", dummy_vec);
 

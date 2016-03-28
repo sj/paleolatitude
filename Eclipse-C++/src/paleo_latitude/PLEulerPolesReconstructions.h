@@ -29,7 +29,7 @@ class PLPlate;
 class PLEulerPolesReconstructions {
 public:
 	struct EPEntry : public CSVFileData<EPEntry>::Entry {
-		EPEntry(const CSVFileData<EPEntry>& parent) : CSVFileData<EPEntry>::Entry(parent){}
+		EPEntry(const CSVFileData<EPEntry>& parent, unsigned int line_no) : CSVFileData<EPEntry>::Entry(parent, line_no){}
 		void set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno) override;
 		unsigned int numColumns() const override;
 

@@ -28,8 +28,8 @@ public:
 	bool hasAge() const;
 	unsigned long getAgeInYears() const;
 
-	string input_apwp_csv = "data/apwp-torsvik-2012.csv";
-	string input_euler_rotation_csv = "data/euler-torsvik-2012.csv";
+	string input_apwp_csv = "data/apwp-torsvik-2012-vandervoo-2015.csv";
+	string input_euler_rotation_csv = "data/euler-torsvik-2012-vandervoo-2015.csv";
 	string input_plates_file = "data/plates.gpml";
 
 	// Initialise to default (invalid) values
