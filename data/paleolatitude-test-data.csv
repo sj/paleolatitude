@@ -1,0 +1,2 @@
+Test name, Latitude, Longitude, Expected plate ID, Expected plate name, Test Age, Test age lower bound, Test age upper bound, Euler data to use for test, APWP data to use for test, Expected paleolatitude, Expected paleolatitude lower bound, Expected paleolatitude upper bound
+Amsterdam,52.366667,4.9,Eurasia,,0,200,,,,20,60
