@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 	try {
 		bpo::store(bpo::parse_command_line(argc, argv, cmdline_params_spec), cmdline_params_values);
 		bpo::notify(cmdline_params_values);
-	} catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::program_options::unknown_option> >& ex){
+	} catch (boost::program_options::error& ex){
 		PaleoLatitude::printAbout();
 		cout << endl;
 
