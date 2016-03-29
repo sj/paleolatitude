@@ -107,14 +107,17 @@ TEST_F(PaleoLatitudeTest, TestDateOrder){
 	delete params;
 }
 
-
 void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_lower, double expected_pl_upper){
+	testLocation(lat, lon, 0, 99999, expected_pl_lower, expected_pl_upper);
+}
+
+void PaleoLatitudeTest::testLocation(double lat, double lon, unsigned int age_min, unsigned int age_max, double expected_pl_lower, double expected_pl_upper){
 	PLParameters* pl_params = new PLParameters();
 	pl_params->site_latitude = lat;
 	pl_params->site_longitude = lon;
 	//pl_params->age = 100;
 	pl_params->age_min = 0;
-	pl_params->age_max = 200;
+	pl_params->age_max = age_max;
 
 	for (unsigned int i = 0; i < PolarWanderPathsDataTest::CSV_FILES.size(); i++){
 		const string euler_csvfile = EulerPolesDataTest::CSV_FILES[i];
@@ -138,9 +141,13 @@ void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_
 }
 
 
-TEST_F(PaleoLatitudeTest, TestLocationsFromXML){
-	// Open 'paleolatitude-test-data.xml': specifies a number of locations,
+TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
+	// Open 'paleolatitude-test-data.csv': specifies a number of locations,
 	// their expected plates, and their expected paleolatitudes
+	CSVFileData<TestEntry> csvdata = new CSVFileData<TestEntry>();
+	csvdata->parseFile("data/paleolatitude-test-data.csv");
+
+
 	FAIL() << "todo";
 }
 
@@ -151,27 +158,37 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromXML){
  */
 
 TEST_F(PaleoLatitudeTest, TestCapetown){
-	testLocation(-33.925278, 18.423889, -56, -21);
+	testLocation(-33.925278, 18.423889, 0, 200, -56, -21);
+}
+
+TEST_F(PaleoLatitudeTest, TestNorthAmericaUpto260ma){
+	// Expected data provided by DvH Feb 2016
+	testLocation(45, -100, 0, 260, 10, 63);
+}
+
+TEST_F(PaleoLatitudeTest, TestNorthAmerica260until){
+	// Expected data provided by DvH Feb 2016
+	testLocation(45, -100, 0, 260, 10, 63);
 }
 
 TEST_F(PaleoLatitudeTest, TestAntananarivoMadagascar){
-	testLocation(-18.933333, 47.516667, -56, -16);
+	testLocation(-18.933333, 47.516667, 0, 200, -56, -16);
 }
 
 TEST_F(PaleoLatitudeTest, TestNewDelhi){
-	testLocation(28.613889, 77.208889, -63, 32);
+	testLocation(28.613889, 77.208889, 0, 200, -63, 32);
 }
 
 TEST_F(PaleoLatitudeTest, TestNuuk){
-	testLocation(64.175, -51.738889, 35, 68);
+	testLocation(64.175, -51.738889, 0, 200, 35, 68);
 }
 
 TEST_F(PaleoLatitudeTest, TestHonolulu){
-	testLocation(21.3, -157.816667, -6, 28);
+	testLocation(21.3, -157.816667, 0, 200, -6, 28);
 }
 
 TEST_F(PaleoLatitudeTest, TestAmsterdam){
-	testLocation(52.366667, 4.9, 20, 60);
+	testLocation(52.366667, 4.9, 0, 200, 20, 60);
 }
 
 
