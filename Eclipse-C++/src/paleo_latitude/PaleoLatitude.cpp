@@ -118,10 +118,9 @@ bool PaleoLatitude::compute(){
 	_result.clear();
 	_result.reserve(compute_ages.size() * 2);
 
-	// Compute values for relevant ages, add interpolated values in between
+	// Compute values for relevant ages, interpolated values will be added later
 	for (unsigned int i = 0; i < compute_ages.size(); i++){
 		const unsigned int curr_age_myr = compute_ages[i];
-		const unsigned long curr_age_years = curr_age_myr * 1000000;
 
 		const vector<PaleoLatitudeEntry> palats = _calculatePaleolatitudeRangeForAge(site, _plate, curr_age_myr);
 		_result.insert(std::end(_result), std::begin(palats), std::end(palats));
@@ -170,54 +169,6 @@ bool PaleoLatitude::compute(){
 		// Interpolated data added to end of result vector - sort again.
 		sort(_result.begin(), _result.end(), PaleoLatitude::PaleoLatitudeEntry::compareByAge);
 	}
-
-
-		/**** OLD implementation
-		PaleoLatitudeEntry palat;
-		if (_result.size() > 0 && _result.back().age_years == curr_age_years){
-			// Already computed in previous iteration
-			palat = _result.back();
-		} else {
-			palat = _calculatePaleolatitudeRangeForAge(site, _plate, curr_age_myr);
-			_result.push_back(palat);
-		}
-
-
-		if (i < compute_ages.size() - 1){
-			// Compute (and store) the paleolatitude for the next age in the list. This allows
-			// for interpolating possible values between the current and next age.
-			const unsigned int next_age_myr = compute_ages[i + 1];
-			PaleoLatitudeEntry next_palat = _calculatePaleolatitudeRangeForAge(site, _plate, next_age_myr);
-
-			if (age_min_myr > curr_age_myr && age_min_myr < next_age_myr){
-				// age_min lies between the current and the next age - interpolate
-				PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_min_years);
-				_result.push_back(interpolated);
-			}
-
-			if (_params->hasAge()){
-				// Specific age requested - make sure we actually provide an answer
-				// for that age (we might have to interpolate)
-				const double age_years = _params->getAgeInYears();
-
-				if (age_myr > curr_age_myr && age_myr < next_age_myr){
-					// requested age in between current and next age - interpolate
-					PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_years);
-					_result.push_back(interpolated);
-				}
-			} // else: no specific age requested
-
-			if (age_max_myr > curr_age_myr && age_max_myr < next_age_myr){
-				// age_max in between current and next age - interpolate
-				PaleoLatitudeEntry interpolated = PaleoLatitudeEntry::interpolate(palat, next_palat, age_max_years);
-				_result.push_back(interpolated);
-			}
-
-			// While we have the result, we might as well store it (it won't be stored
-			// twice, see above)
-			_result.push_back(next_palat);
-		} END OLD IMPLEMENTATION***/
-
 
 	for (PaleoLatitudeEntry entry : _result){
 		Logger::info << entry.to_string() << endl;
@@ -532,14 +483,21 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::getPaleoLatitude() const {
 		if (entry.age_years < _params->getMinAgeInYears()) continue;
 		if (entry.age_years > _params->getMaxAgeInYears()) break;
 
-		if (aggr.age_years == 99999) aggr = entry; // initialise with useful value
+		if (aggr.age_years == 99999){
+			aggr = entry; // initialise with useful values
+			aggr.age_years = 0;
+			aggr.palat = 0;
+		}
 
 		if (entry.palat_min < aggr.palat_min) aggr.palat_min = entry.palat_min;
 		if (entry.palat_max > aggr.palat_max) aggr.palat_max = entry.palat_max;
 		if (entry.age_years_lower_bound < aggr.age_years_lower_bound) aggr.age_years_lower_bound = entry.age_years_lower_bound;
 		if (entry.age_years_upper_bound > aggr.age_years_upper_bound) aggr.age_years_upper_bound = entry.age_years_upper_bound;
 
-		if (_params->hasAge() && entry.age_years  == _params->getAgeInYears()) aggr.palat = entry.palat;
+		if (_params->hasAge() && entry.age_years  == _params->getAgeInYears()){
+			aggr.palat = entry.palat;
+			aggr.age_years = entry.age_years;
+		}
 	}
 
 	return aggr;
