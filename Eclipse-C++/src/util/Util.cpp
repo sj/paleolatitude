@@ -9,8 +9,11 @@
 #include <sstream>
 #include <cmath>
 
-using namespace paleo_latitude;
 using namespace std;
+using namespace paleo_latitude;
+
+
+namespace paleo_latitude {
 
 bool Util::string_ends_with(const string& some_string, const string& suffix){
 	if (some_string.length() < suffix.length()) return false;
@@ -30,4 +33,9 @@ bool Util::double_eq(const double& a, const double& b){
 	return (diff / (fabs(a) + fabs(b)) < DOUBLE_COMPARISON_EPSILON);
 }
 
+template<> bool Util::string_to_something(const string& str, string& result){
+	result = str;
+	return true;
+}
 
+};

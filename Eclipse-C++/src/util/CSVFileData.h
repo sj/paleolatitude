@@ -9,7 +9,7 @@
 #define CSVFILEDATA_H_
 
 #include "Exception.h"
-
+#include <iostream>
 #include <string>
 #include <fstream>
 #include <boost/algorithm/string.hpp>
@@ -30,6 +30,7 @@ public:
 
 		template<class T> T parseString(const string& input, T& output) const {
 			bool res = Util::string_to_something(input, output);
+
 			if (!res){
 				CSVFileDataParseException ex;
 				ex << "Parse exception on line " << _line_no << " of '" << _container->getFilename() << "': unexpected string '" << input << "'";
@@ -63,11 +64,11 @@ public:
 		 * Tests whether the provided column is empty (i.e., whether the string in that column is empty)
 		 */
 		bool empty(unsigned int col_index) const {
-			return _values[col_index].empty();
+			return _values.at(col_index).empty();
 		}
 
 		template<class T> T get_as(unsigned int col_index, T& output) const {
-			return this->parseString(_values[col_index], output);
+			return this->parseString(_values.at(col_index), output);
 		}
 
 		int get_int(unsigned int col_index) const {

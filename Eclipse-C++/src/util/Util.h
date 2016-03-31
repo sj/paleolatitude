@@ -26,6 +26,7 @@ public:
 		return true;
 	}
 
+
 	static bool string_ends_with(const string& some_string, const string& suffix);
 
 	static bool double_eq(const double& a, const double& b);

@@ -7,19 +7,22 @@ CPP_SRCS += \
 ../tests/EulerPolesDataTest.cpp \
 ../tests/PaleoLatitudeTest.cpp \
 ../tests/PlateDataTest.cpp \
-../tests/PolarWanderPathsDataTest.cpp 
+../tests/PolarWanderPathsDataTest.cpp \
+../tests/UtilTest.cpp 
 
 OBJS += \
 ./tests/EulerPolesDataTest.o \
 ./tests/PaleoLatitudeTest.o \
 ./tests/PlateDataTest.o \
-./tests/PolarWanderPathsDataTest.o 
+./tests/PolarWanderPathsDataTest.o \
+./tests/UtilTest.o 
 
 CPP_DEPS += \
 ./tests/EulerPolesDataTest.d \
 ./tests/PaleoLatitudeTest.d \
 ./tests/PlateDataTest.d \
-./tests/PolarWanderPathsDataTest.d 
+./tests/PolarWanderPathsDataTest.d \
+./tests/UtilTest.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

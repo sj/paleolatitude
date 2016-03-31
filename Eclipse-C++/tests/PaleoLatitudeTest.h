@@ -26,9 +26,24 @@ public:
 		double latitude = 0;
 		double longitude = 0;
 		unsigned int expected_plate_id = 0;
+		string expected_plate_name;
+		unsigned int test_age = 0;
+		unsigned int test_age_lowerbound = 0;
+		unsigned int test_age_upperbound = 0;
+		string euler_data;
+		string apwp_data;
+		double expected_paleolatitude = 0;
+		double expected_paleolatitude_lowerbound = 0;
+		double expected_paleolatitude_upperbound = 0;
 
 	private:
-		enum columns_t : unsigned int {TEST_NAME = 0, LATITUDE = 1, LONGITUDE = 2, EXPECTED_PLATE_ID = 3};
+		FRIEND_TEST(PaleoLatitudeTest, TestLocationsFromCSV);
+		enum columns_t : unsigned int {
+			TEST_NAME = 0, LATITUDE = 1, LONGITUDE = 2, EXPECTED_PLATE_ID = 3,
+			EXPECTED_PLATE_NAME = 4, TEST_AGE = 5, TEST_AGE_LOWERBOUND = 6, TEST_AGE_UPPERBOUND = 7,
+			EULER_DATA = 8, APWP_DATA = 9, EXPECTED_PALEOLATITUDE = 10, EXPECTED_PALEOLATITUDE_LOWERBOUND = 11,
+			EXPECTED_PALEOLATITUDE_UPPERBOUND = 12
+		};
 	};
 
 	static void testLocation(double lat, double lon, double pl_lower, double pl_upper);
