@@ -140,15 +140,35 @@ void PaleoLatitudeTest::testLocation(double lat, double lon, unsigned int age_mi
 
 }
 
+size_t PaleoLatitudeTest::TestEntry::numColumns() const {
+	return 13;
+}
+
+void PaleoLatitudeTest::TestEntry::set(unsigned int column, string value, string filename, unsigned int line_no){
+	if (value.empty()) return;
+	if (column == TEST_NAME) this->parseString(value, test_name);
+	if (column == LATITUDE) this->parseString(value, latitude);
+	if (column == LONGITUDE) this->parseString(value, longitude);
+	if (column == EXPECTED_PLATE_ID) this->parseString(value, expected_plate_id);
+
+}
 
 TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 	// Open 'paleolatitude-test-data.csv': specifies a number of locations,
 	// their expected plates, and their expected paleolatitudes
-	CSVFileData<TestEntry> csvdata = new CSVFileData<TestEntry>();
+	CSVFileData<TestEntry>* csvdata = new CSVFileData<TestEntry>();
 	csvdata->parseFile("data/paleolatitude-test-data.csv");
 
+	for (const TestEntry& entry : csvdata->getEntries()){
+		string test_name = entry.test_name;
+		double lat = entry.latitude;
+		double lon = entry.longitude;
+		cout << test_name << " " << lat << "," << lon << endl;
+	}
 
 	FAIL() << "todo";
+
+	delete csvdata;
 }
 
 /**

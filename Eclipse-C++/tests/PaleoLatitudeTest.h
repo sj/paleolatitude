@@ -15,12 +15,20 @@ using namespace paleo_latitude;
 
 class PaleoLatitudeTest : public ::testing::Test {
 public:
-	struct TestEntry : public CSVFileData<TestEntry>::Entry {
-		TestEntry(CSVFileData<TestEntry>* parent, unsigned int line_no) : CSVFileData<TestEntry>::Entry(parent, line_no){}
-		void set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno) override;
-		unsigned int numColumns() const override;
+	struct TestEntry : public CSVFileData<TestEntry>::StringEntry {
+	public:
+		TestEntry(CSVFileData<TestEntry>* parent, unsigned int line_no) : CSVFileData<TestEntry>::StringEntry(parent, line_no){}
 
+		size_t numColumns() const;
+		void set(unsigned int column, const string value, const string filename, unsigned int lineno) override;
 
+		string test_name;
+		double latitude = 0;
+		double longitude = 0;
+		unsigned int expected_plate_id = 0;
+
+	private:
+		enum columns_t : unsigned int {TEST_NAME = 0, LATITUDE = 1, LONGITUDE = 2, EXPECTED_PLATE_ID = 3};
 	};
 
 	static void testLocation(double lat, double lon, double pl_lower, double pl_upper);

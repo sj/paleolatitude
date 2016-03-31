@@ -28,10 +28,10 @@ class PLPlate;
  */
 class PLEulerPolesReconstructions {
 public:
-	struct EPEntry : public CSVFileData<EPEntry>::Entry {
-		EPEntry(CSVFileData<EPEntry>* parent, unsigned int line_no) : CSVFileData<EPEntry>::Entry(parent, line_no){}
-		void set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno) override;
-		unsigned int numColumns() const override;
+	struct EPEntry : public CSVFileData<EPEntry>::StringEntry {
+		EPEntry(CSVFileData<EPEntry>* parent, unsigned int line_no) : CSVFileData<EPEntry>::StringEntry(parent, line_no){}
+		void set(unsigned int col_index, const string value, const string filename, unsigned int lineno) override;
+		size_t numColumns() const override;
 
 		static bool compareByAge(const EPEntry* a, const EPEntry* b);
 

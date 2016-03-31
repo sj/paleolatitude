@@ -60,7 +60,7 @@ const vector<PLPolarWanderPaths::PWPEntry>& PLPolarWanderPaths::getAllEntries() 
 }
 
 
-void PLPolarWanderPaths::PWPEntry::set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno){
+void PLPolarWanderPaths::PWPEntry::set(unsigned int col_index, const string value, const string filename, unsigned int lineno){
 	// Column index 0: plage ID (uint)
 	// Column index 1: age (uint)
 	// Column index 2: a95 (uint)
@@ -69,18 +69,18 @@ void PLPolarWanderPaths::PWPEntry::set(unsigned int col_index, const string& val
 
 	auto entries = _container->getEntries();
 
-	if (col_index == 0) this->parseString(value, this->plate_id, filename, lineno);
+	if (col_index == 0) this->parseString(value, this->plate_id);
 
 	if (col_index == 1){
-		this->parseString(value, this->age, filename, lineno);
+		this->parseString(value, this->age);
 	}
 
-	if (col_index == 2) this->parseString(value, this->a95, filename, lineno);
-	if (col_index == 3) this->parseString(value, this->latitude, filename, lineno);
-	if (col_index == 4) this->parseString(value, this->longitude, filename, lineno);
+	if (col_index == 2) this->parseString(value, this->a95);
+	if (col_index == 3) this->parseString(value, this->latitude);
+	if (col_index == 4) this->parseString(value, this->longitude);
 }
 
-unsigned int PLPolarWanderPaths::PWPEntry::numColumns() const {
+size_t PLPolarWanderPaths::PWPEntry::numColumns() const {
 	return 5;
 }
 

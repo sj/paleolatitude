@@ -93,7 +93,7 @@ vector<unsigned int> PLEulerPolesReconstructions::getRelevantAges(const PLPlate*
 }
 
 
-void PLEulerPolesReconstructions::EPEntry::set(unsigned int col_index, const string& value, const string& filename, unsigned int lineno){
+void PLEulerPolesReconstructions::EPEntry::set(unsigned int col_index, const string value, const string filename, unsigned int lineno){
 	// Column index 0: plate id (uint)
 	// Column index 1: age (uint)
 	// Column index 2: latitude (double)
@@ -101,15 +101,15 @@ void PLEulerPolesReconstructions::EPEntry::set(unsigned int col_index, const str
 	// Column index 4: rotation (double)
 	// Column index 5: plate id (uint) to which the rotation is relative
 
-	if (col_index == 0) this->parseString(value, this->plate_id, filename, lineno);
-	if (col_index == 1) this->parseString(value, this->age, filename, lineno);
-	if (col_index == 2) this->parseString(value, this->latitude, filename, lineno);
-	if (col_index == 3) this->parseString(value, this->longitude, filename, lineno);
-	if (col_index == 4) this->parseString(value, this->rotation, filename, lineno);
-	if (col_index == 5) this->parseString(value, this->rotation_rel_to_plate_id, filename, lineno);
+	if (col_index == 0) this->parseString(value, this->plate_id);
+	if (col_index == 1) this->parseString(value, this->age);
+	if (col_index == 2) this->parseString(value, this->latitude);
+	if (col_index == 3) this->parseString(value, this->longitude);
+	if (col_index == 4) this->parseString(value, this->rotation);
+	if (col_index == 5) this->parseString(value, this->rotation_rel_to_plate_id);
 }
 
-unsigned int PLEulerPolesReconstructions::EPEntry::numColumns() const {
+size_t PLEulerPolesReconstructions::EPEntry::numColumns() const {
 	return 6;
 }
 

@@ -17,18 +17,22 @@
 
 namespace paleo_latitude {
 
+/**
+ * Simple utility class for reading CSV files. Does not do support quoting or escaping.
+ */
 template<class EntryType>
 class CSVFileData {
 public:
 	struct Entry {
-		virtual void set(unsigned int column, const string& value, const string& filename, unsigned int lineno) = 0;
-		virtual unsigned int numColumns() const = 0;
+	public:
+		virtual void set(unsigned int column, const string value, const string filename, unsigned int lineno) = 0;
+		virtual size_t numColumns() const = 0;
 
-		template<class T> T parseString(const string& input, T& output, const string& filename, unsigned int lineno){
+		template<class T> T parseString(const string& input, T& output) const {
 			bool res = Util::string_to_something(input, output);
 			if (!res){
 				CSVFileDataParseException ex;
-				ex << "Parse exception on line " << lineno << " of '" << filename << "': unexpected string '" << input << "'";
+				ex << "Parse exception on line " << _line_no << " of '" << _container->getFilename() << "': unexpected string '" << input << "'";
 				throw ex;
 			}
 			return output;
@@ -48,6 +52,51 @@ public:
 	};
 
 
+	struct StringEntry : public Entry {
+	public:
+		virtual void set(unsigned int column, const string value, const string filename, unsigned int lineno){
+			_values.resize(this->numColumns());
+			_values[column] = value;
+		}
+
+		/**
+		 * Tests whether the provided column is empty (i.e., whether the string in that column is empty)
+		 */
+		bool empty(unsigned int col_index) const {
+			return _values[col_index].empty();
+		}
+
+		template<class T> T get_as(unsigned int col_index, T& output) const {
+			return this->parseString(_values[col_index], output);
+		}
+
+		int get_int(unsigned int col_index) const {
+			int res;
+			return get_as(col_index, res);
+		}
+
+		double get_double(unsigned int col_index) const {
+			double res;
+			return get_as(col_index, res);
+		}
+
+		unsigned int get_uint(unsigned int col_index) const {
+			unsigned int res;
+			return get_as(col_index, res);
+		}
+
+		string get(unsigned int col_index) const {
+			return _values[col_index];
+		}
+
+	protected:
+		StringEntry(CSVFileData<EntryType>* parent, unsigned int line_no)  : Entry(parent, line_no){}
+
+	private:
+		vector<string> _values;
+	};
+
+
 	class CSVFileDataParseException : public Exception {
 	public:
 		CSVFileDataParseException(): Exception(){}
@@ -62,7 +111,12 @@ public:
 		return _data;
 	}
 
-	void parseFile(const string& filename){
+	string getFilename() const {
+		return _filename;
+	}
+
+	void parseFile(const string filename){
+		_filename = filename;
 		ifstream csvfile (filename);
 
 		if (!csvfile.good()){
@@ -117,7 +171,7 @@ public:
 
 private:
 	CSVFileData(const CSVFileData<EntryType>& other) = delete;
-
+	string _filename;
 	vector<EntryType> _data;
 };
 
