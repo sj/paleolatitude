@@ -108,40 +108,6 @@ TEST_F(PaleoLatitudeTest, TestDateOrder){
 	delete params;
 }
 
-void PaleoLatitudeTest::testLocation(double lat, double lon, double expected_pl_lower, double expected_pl_upper){
-	testLocation(lat, lon, 0, 99999, expected_pl_lower, expected_pl_upper);
-}
-
-void PaleoLatitudeTest::testLocation(double lat, double lon, unsigned int age_min, unsigned int age_max, double expected_pl_lower, double expected_pl_upper){
-	PLParameters* pl_params = new PLParameters();
-	pl_params->site_latitude = lat;
-	pl_params->site_longitude = lon;
-	//pl_params->age = 100;
-	pl_params->age_min = 0;
-	pl_params->age_max = age_max;
-
-	for (unsigned int i = 0; i < PolarWanderPathsDataTest::CSV_FILES.size(); i++){
-		const string euler_csvfile = EulerPolesDataTest::CSV_FILES[i];
-		const string apwp_csvfile = PolarWanderPathsDataTest::CSV_FILES[i];
-
-		pl_params->input_apwp_csv = apwp_csvfile;
-		pl_params->input_euler_rotation_csv = euler_csvfile;
-
-		Logger::debug << "Testing paleolatitude computation for location (lat=" << lat << ",lon=" << lon << ") using " << euler_csvfile << ", " << apwp_csvfile << "..." << endl;
-
-		PaleoLatitude pl(pl_params);
-		pl.compute();
-
-		PaleoLatitude::PaleoLatitudeEntry res = pl.getPaleoLatitude();
-
-		Logger::debug << "Verifying computed latitude bounds for location (lat=" << lat << ",lon=" << lon << "): bounds [" << res.palat_min << "," << res.palat_max << "] established using " << euler_csvfile << ", " << apwp_csvfile << "..." << endl;
-		ASSERT_LE(expected_pl_lower, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << euler_csvfile << ", " << apwp_csvfile << ")";
-		ASSERT_GE(expected_pl_upper, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << euler_csvfile << ", " << apwp_csvfile << ")";
-	}
-
-	delete pl_params;
-}
-
 size_t PaleoLatitudeTest::TestEntry::numColumns() const {
 	return 13;
 }
@@ -179,42 +145,74 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 		// Test plate data first
 		cout << "Test location " << counter << " (line " << entry.getLineNo() << " of " << csvfile << "): " << entry.test_name << " (" << entry.latitude << "," << entry.longitude << ")..." << endl;
 
-		PlateDataTest::testLocation(entry.latitude, entry.longitude, entry.expected_plate_id, entry.expected_plate_name);
+		unsigned int computed_plate_id = 0;
+		string computed_plate_name = "";
+		PlateDataTest::testLocation(entry.latitude, entry.longitude, entry.expected_plate_id, entry.expected_plate_name, computed_plate_id, computed_plate_name);
 
 		if (entry.empty(TestEntry::TEST_AGE_LOWERBOUND) && entry.empty(TestEntry::TEST_AGE_UPPERBOUND) && entry.empty(TestEntry::TEST_AGE)){
 			// Test does not specify age data - do not test paleolatitude
+			cout << "  -> plate: " << computed_plate_name << " (" << computed_plate_id << "). Paleolatitude not computed as part of test." << endl;
 			continue;
 		}
 
-		// Test paleolatitude computation
-		PLParameters* pl_params = new PLParameters();
-		pl_params->site_latitude = entry.latitude;
-		pl_params->site_longitude = entry.longitude;
 
-		if (!entry.empty(TestEntry::TEST_AGE_LOWERBOUND)) pl_params->age_min = entry.test_age_lowerbound;
-		if (!entry.empty(TestEntry::TEST_AGE_UPPERBOUND)) pl_params->age_max = entry.test_age_upperbound;
-		if (!entry.empty(TestEntry::TEST_AGE)) pl_params->age = entry.test_age;
-		if (!entry.empty(TestEntry::APWP_DATA)) pl_params->input_apwp_csv = entry.apwp_data;
-		if (!entry.empty(TestEntry::EULER_DATA)) pl_params->input_euler_rotation_csv = entry.euler_data;
-
-
-		PaleoLatitude pl(pl_params);
-		pl.compute();
-
-		PaleoLatitude::PaleoLatitudeEntry res = pl.getPaleoLatitude();
-		if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_LOWERBOUND)){
-			ASSERT_LE(entry.expected_paleolatitude_lowerbound, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+		vector<string> euler_data_csvs;
+		vector<string> apwp_data_csvs;
+		if (entry.empty(TestEntry::APWP_DATA) && entry.empty(TestEntry::EULER_DATA)){
+			// No specific Euler/APWP data specified: use all
+			euler_data_csvs.resize(EulerPolesDataTest::CSV_FILES.size());
+			apwp_data_csvs.resize(PolarWanderPathsDataTest::CSV_FILES.size());
+			copy(EulerPolesDataTest::CSV_FILES.begin(), EulerPolesDataTest::CSV_FILES.end(), euler_data_csvs.begin());
+			copy(PolarWanderPathsDataTest::CSV_FILES.begin(), PolarWanderPathsDataTest::CSV_FILES.end(), apwp_data_csvs.begin());
+		} else if (!entry.empty(TestEntry::APWP_DATA) && !entry.empty(TestEntry::EULER_DATA)){
+			// Only test using the specified Euler/APWP data
+			euler_data_csvs.push_back(entry.euler_data);
+			apwp_data_csvs.push_back(entry.apwp_data);
+		} else {
+			FAIL() << "Line " << entry.getLineNo() << " of " << csvfile << " specifies only one of (Euler data, APWP data): expecting either both or neither" << endl;
 		}
 
-		if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_UPPERBOUND)){
-			ASSERT_GE(entry.expected_paleolatitude_upperbound, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
-		}
+		for (unsigned int i = 0; i < euler_data_csvs.size(); i++){
 
-		if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE)){
-			ASSERT_NEAR(entry.expected_paleolatitude, res.palat, 0.001) << "Unexpected paleolatitude (using " << entry.euler_data << ", " << entry.apwp_data << ")";
-		}
+			// Test paleolatitude computation
+			PLParameters* pl_params = new PLParameters();
+			pl_params->site_latitude = entry.latitude;
+			pl_params->site_longitude = entry.longitude;
+			pl_params->input_apwp_csv = apwp_data_csvs[i];
+			pl_params->input_euler_rotation_csv = euler_data_csvs[i];
 
-		delete pl_params;
+			if (!entry.empty(TestEntry::TEST_AGE_LOWERBOUND)) pl_params->age_min = entry.test_age_lowerbound;
+			if (!entry.empty(TestEntry::TEST_AGE_UPPERBOUND)) pl_params->age_max = entry.test_age_upperbound;
+			if (!entry.empty(TestEntry::TEST_AGE)) pl_params->age = entry.test_age;
+
+			PaleoLatitude pl(pl_params);
+			pl.compute();
+
+			PaleoLatitude::PaleoLatitudeEntry res = pl.getPaleoLatitude();
+			stringstream res_details;
+			res_details << "plate: " << computed_plate_name << " (" << computed_plate_id << ")";
+
+			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE)){
+				ASSERT_NEAR(entry.expected_paleolatitude, res.palat, 0.001) << "Unexpected paleolatitude (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+				res_details << ", paleolatitude: " << res.palat;
+			}
+
+			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_LOWERBOUND)){
+				ASSERT_LE(entry.expected_paleolatitude_lowerbound, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+				res_details << ", lower bound: " << res.palat_min;
+			}
+
+			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_UPPERBOUND)){
+				ASSERT_GE(entry.expected_paleolatitude_upperbound, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+				res_details << ", upper bound: " << res.palat_max;
+			}
+
+			res_details << " (using " << pl_params->input_euler_rotation_csv << " and " << pl_params->input_apwp_csv << ")";
+
+			cout << "  -> " << res_details.str() << endl;
+
+			delete pl_params;
+		}
 	}
 
 	delete csvdata;
@@ -226,6 +224,7 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
  * different paleolatitude.
  */
 
+/**
 TEST_F(PaleoLatitudeTest, TestCapetown){
 	testLocation(-33.925278, 18.423889, 0, 200, -56, -21);
 }
@@ -235,9 +234,9 @@ TEST_F(PaleoLatitudeTest, TestNorthAmericaUpto260ma){
 	testLocation(45, -100, 0, 260, 10, 63);
 }
 
-TEST_F(PaleoLatitudeTest, TestNorthAmerica260until){
+TEST_F(PaleoLatitudeTest, TestNorthAmericaBeyond260){
 	// Expected data provided by DvH Feb 2016
-	testLocation(45, -100, 0, 260, 10, 63);
+	testLocation(45, -100, 0, 260, 9999, 63);
 }
 
 TEST_F(PaleoLatitudeTest, TestAntananarivoMadagascar){
@@ -259,5 +258,5 @@ TEST_F(PaleoLatitudeTest, TestHonolulu){
 TEST_F(PaleoLatitudeTest, TestAmsterdam){
 	testLocation(52.366667, 4.9, 0, 200, 20, 60);
 }
-
+**/
 

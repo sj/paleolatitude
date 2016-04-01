@@ -19,6 +19,7 @@ private:
 	static string _normalisePlateName(string plate_name);
 
 public:
+	static void testLocation(double lat, double lon, unsigned int expected_plate_id, string expected_plate_name, unsigned int& computed_plate_id, string& computed_plate_name);
 	static void testLocation(double lat, double lon, unsigned int expected_plate_id, string expected_plate_name);
 };
 

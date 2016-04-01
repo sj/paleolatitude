@@ -17,72 +17,6 @@
 using namespace std;
 using namespace paleo_latitude;
 
-TEST_F(PlateDataTest, TestAmsterdam){
-	PlateDataTest::testLocation(52.366667, 4.9, 315, "Eurasia");
-}
-
-TEST_F(PlateDataTest, TestNewYork){
-	PlateDataTest::testLocation(40.7127, -74.0059, 199, "Alleghanian North America");
-}
-
-TEST_F(PlateDataTest, TestCapetown){
-	PlateDataTest::testLocation(-33.925278, 18.423889, 701, "South Africa");
-}
-
-TEST_F(PlateDataTest, TestAntananarivoMadagascar){
-	PlateDataTest::testLocation(-18.933333, 47.516667, 702, "Madagascar");
-}
-
-TEST_F(PlateDataTest, TestNewDelhi){
-	PlateDataTest::testLocation(28.613889, 77.208889, 501, "India");
-}
-
-TEST_F(PlateDataTest, TestSydney){
-	PlateDataTest::testLocation(-33.859972, 151.209444, 801, "Australia");
-}
-
-
-TEST_F(PlateDataTest, TestNuuk){
-	PlateDataTest::testLocation(64.175, -51.738889, 102, "Greenland");
-}
-
-TEST_F(PlateDataTest, TestRussia){
-	PlateDataTest::testLocation(60, 30, 301, "Baltica");
-}
-
-TEST_F(PlateDataTest, TestSiberia){
-	PlateDataTest::testLocation(60, 90, 401, "Siberia");
-}
-
-TEST_F(PlateDataTest, TestElanBank){
-	// Elan Bank is plate-within-plate
-	PlateDataTest::testLocation(-60, +60, 514, "Elan Bank");
-}
-
-
-TEST_F(PlateDataTest, TestHonolulu){
-	PlateDataTest::testLocation(21.3, -157.816667, 901, "Pacific");
-}
-
-TEST_F(PlateDataTest, TestPalikirMicronesia){
-	PlateDataTest::testLocation(6.917222, 158.158889, 901, "Pacific");
-}
-
-TEST_F(PlateDataTest, TestMarakesh){
-	// Marakesh, Morocco. On recently introduced plate "Western Meseta"
-	PlateDataTest::testLocation(31.63, -8.008889, 3547, "Western Meseta");
-}
-
-TEST_F(PlateDataTest, TestMascara){
-	// Mascara, Northern Algeria. On recently introduced plate "Eastern Meseta south of Tell Belt"
-	PlateDataTest::testLocation(35.383333, 0.15, 3546, "Eastern Meseta south of Tell Belt");
-}
-
-TEST_F(PlateDataTest, TestLongyearbyen){
-	// Longyearbyen is on the Eurasian plate, but very close to both the Greenland plate,
-	// and the North American Plate
-	PlateDataTest::testLocation(78.22, 15.65, 315, "Eurasia");
-}
 
 TEST_F(PlateDataTest, TestNumberOfPlates){
 	// This test reads the number of plates to expect from plates.num, and verifies whether
@@ -139,27 +73,6 @@ TEST_F(PlateDataTest, TestNumberOfPlates){
 	delete plp_gpml;
 }
 
-
-TEST_F(PlateDataTest, TestNorthPole){
-	// Arbitrary location in a small bit of North American Plate, enclosed by the Eurasian and
-	// Greenland plates
-	PlateDataTest::testLocation(80.952410, -4.012213, 101, "North America");
-
-	// Just east of Greenland in the sea, very close to the North American plate
-	PlateDataTest::testLocation(82.536376, -10.279457, 102, "Greenland");
-
-	// Piece of Eurasian plate enclosed by North American and Greenland plates
-	PlateDataTest::testLocation(80.215851, -2.679118, 315, "Eurasia");
-
-	// North-east Siberian plate, close to some other plates around the north pole, and very close
-	// to the 180 degree meridian
-	PlateDataTest::testLocation(76.082751, 178.79066, 409, "Northeast Siberia");
-}
-
-TEST_F(PlateDataTest, TestSouthPole){
-	PlateDataTest::testLocation(-89, 1, 802, "East Antarctica");
-}
-
 string PlateDataTest::_normalisePlateName(const string plate_name) {
 	string res = plate_name;
 	boost::algorithm::to_lower(res); // in-place!
@@ -173,6 +86,12 @@ string PlateDataTest::_normalisePlateName(const string plate_name) {
 }
 
 void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_plate_id, string expected_plate_name) {
+	unsigned int foo_id;
+	string foo_name;
+	testLocation(lat, lon, expected_plate_id, expected_plate_name, foo_id, foo_name);
+}
+
+void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_plate_id, string expected_plate_name, unsigned int& computed_plate_id, string& computed_plate_name) {
 	string expected_plate_name_norm = PlateDataTest::_normalisePlateName(expected_plate_name);
 
 	string kml_plate_name_norm;
@@ -187,6 +106,9 @@ void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_p
 
 		kml_plate_id = plate_kml->getId();
 		kml_plate_name_norm = PlateDataTest::_normalisePlateName(plate_kml->getName());
+
+		computed_plate_id = kml_plate_id;
+		computed_plate_name = plate_kml->getName();
 	} catch (...){}
 
 
@@ -197,6 +119,9 @@ void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_p
 
 		gpml_plate_id = gpml_plate->getId();
 		gpml_plate_name_norm = PlateDataTest::_normalisePlateName(gpml_plate->getName());
+
+		computed_plate_id = gpml_plate_id;
+		computed_plate_name = gpml_plate->getName();
 	} catch (Exception& e){
 		FAIL() << "Unexpected exception during point-on-plate computation: " << e.what();
 	}
@@ -223,5 +148,4 @@ void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_p
 
 	delete plp_kml;
 	delete plp_gpml;
-
 }

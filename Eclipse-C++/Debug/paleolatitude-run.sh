@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./PaleoLatitude --age=50 --age-pm=20 --site-lat=52.366667 --site-lon=4.9 $@
+./PaleoLatitude --age=225 --min-age=0 --max-age=9999 --site-lat=45 --site-lon=-100 $@

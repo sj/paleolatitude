@@ -45,9 +45,6 @@ public:
 			EXPECTED_PALEOLATITUDE_UPPERBOUND = 12
 		};
 	};
-
-	static void testLocation(double lat, double lon, double pl_lower, double pl_upper);
-	static void testLocation(double lat, double lon, unsigned int min_age, unsigned int max_age, double pl_lower, double pl_upper);
 };
 
 #endif /* PALEOLATITUDETEST_H_ */

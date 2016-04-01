@@ -430,7 +430,12 @@ void PaleoLatitude::printAbout() {
 string PaleoLatitude::PaleoLatitudeEntry::to_string() {
 	stringstream res;
 	double age_myr = (age_years / 1000000.0);
-	res << "PaleoLatitude for age " << age_myr << " (Myr): Λ_min = " << palat_min << ", Λ = " << palat << ", Λ_max " << palat_max << (is_interpolated ? " (interpolated)" : "");
+	res << "PaleoLatitude for age " << age_myr << " (Myr): Λ_min = " << palat_min << ", Λ = " << palat << ", Λ_max " << palat_max;
+	if (is_interpolated){
+		res << " (interpolated)";
+	} else {
+		res << " (using polar wander path of plate " << euler_data->rotation_rel_to_plate_id << ")";
+	}
 	return res.str();
 }
 
