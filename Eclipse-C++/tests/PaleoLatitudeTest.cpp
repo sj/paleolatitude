@@ -158,6 +158,8 @@ void PaleoLatitudeTest::TestEntry::set(unsigned int column, string value, string
 	if (column == TEST_AGE) this->parseString(value, test_age);
 	if (column == TEST_AGE_LOWERBOUND) this->parseString(value, test_age_lowerbound);
 	if (column == TEST_AGE_UPPERBOUND) this->parseString(value, test_age_upperbound);
+	if (column == EULER_DATA) this->parseString(value, euler_data);
+	if (column == APWP_DATA) this->parseString(value, apwp_data);
 	if (column == EXPECTED_PALEOLATITUDE) this->parseString(value, expected_paleolatitude);
 	if (column == EXPECTED_PALEOLATITUDE_LOWERBOUND) this->parseString(value, expected_paleolatitude_lowerbound);
 	if (column == EXPECTED_PALEOLATITUDE_UPPERBOUND) this->parseString(value, expected_paleolatitude_upperbound);
@@ -166,12 +168,16 @@ void PaleoLatitudeTest::TestEntry::set(unsigned int column, string value, string
 TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 	// Open 'paleolatitude-test-data.csv': specifies a number of locations,
 	// their expected plates, and their expected paleolatitudes
+	const string csvfile = "data/paleolatitude-test-data.csv";
 	CSVFileData<TestEntry>* csvdata = new CSVFileData<TestEntry>();
-	csvdata->parseFile("data/paleolatitude-test-data.csv");
+	csvdata->parseFile(csvfile);
 
+	unsigned int counter = 0;
 	for (const TestEntry& entry : csvdata->getEntries()){
+		counter++;
+
 		// Test plate data first
-		cout << "Test location " << entry.getLineNo() << ": " << entry.test_name << " (" << entry.latitude << "," << entry.longitude << ")..." << endl;
+		cout << "Test location " << counter << " (line " << entry.getLineNo() << " of " << csvfile << "): " << entry.test_name << " (" << entry.latitude << "," << entry.longitude << ")..." << endl;
 
 		PlateDataTest::testLocation(entry.latitude, entry.longitude, entry.expected_plate_id, entry.expected_plate_name);
 
@@ -185,16 +191,31 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 		pl_params->site_latitude = entry.latitude;
 		pl_params->site_longitude = entry.longitude;
 
-
 		if (!entry.empty(TestEntry::TEST_AGE_LOWERBOUND)) pl_params->age_min = entry.test_age_lowerbound;
 		if (!entry.empty(TestEntry::TEST_AGE_UPPERBOUND)) pl_params->age_max = entry.test_age_upperbound;
 		if (!entry.empty(TestEntry::TEST_AGE)) pl_params->age = entry.test_age;
+		if (!entry.empty(TestEntry::APWP_DATA)) pl_params->input_apwp_csv = entry.apwp_data;
+		if (!entry.empty(TestEntry::EULER_DATA)) pl_params->input_euler_rotation_csv = entry.euler_data;
 
+
+		PaleoLatitude pl(pl_params);
+		pl.compute();
+
+		PaleoLatitude::PaleoLatitudeEntry res = pl.getPaleoLatitude();
+		if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_LOWERBOUND)){
+			ASSERT_LE(entry.expected_paleolatitude_lowerbound, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+		}
+
+		if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_UPPERBOUND)){
+			ASSERT_GE(entry.expected_paleolatitude_upperbound, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+		}
+
+		if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE)){
+			ASSERT_NEAR(entry.expected_paleolatitude, res.palat, 0.001) << "Unexpected paleolatitude (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+		}
 
 		delete pl_params;
 	}
-
-	FAIL() << "todo";
 
 	delete csvdata;
 }
