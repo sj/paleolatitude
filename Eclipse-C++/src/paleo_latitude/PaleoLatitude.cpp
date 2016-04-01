@@ -400,7 +400,7 @@ const PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRa
 	}
 
 	const unsigned long age_years = age_myr * 1000000;
-	return PaleoLatitudeEntry(age_years, age_years, age_years, lambda_min, lambda, lambda_max, euler_entry, pwp_entry);
+	return PaleoLatitudeEntry(age_years, age_years, age_years, lambda_min, lambda, lambda_max, euler_entry->rotation_rel_to_plate_id);
 }
 
 double PaleoLatitude::_deg2rad(const double& deg){
@@ -434,7 +434,7 @@ string PaleoLatitude::PaleoLatitudeEntry::to_string() {
 	if (is_interpolated){
 		res << " (interpolated)";
 	} else {
-		res << " (using polar wander path of plate " << euler_data->rotation_rel_to_plate_id << ")";
+		res << " (using polar wander path of plate " << computed_using_plate_id << ")";
 	}
 	return res.str();
 }
@@ -442,6 +442,12 @@ string PaleoLatitude::PaleoLatitudeEntry::to_string() {
 PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::PaleoLatitudeEntry::interpolate(
 		const PaleoLatitudeEntry& other_younger,
 		const PaleoLatitudeEntry& other_older, unsigned long age_years) {
+
+	if (other_younger.computed_using_plate_id != other_older.computed_using_plate_id){
+		Exception e;
+		e << "Cannot interpolate for age=" << age_years << " between two paleolatitude results that were computed using two different reference plates";
+		throw e;
+	}
 
 	const double delta_palat_min = other_older.palat_min - other_younger.palat_min;
 	const double delta_palat = other_older.palat - other_younger.palat;
@@ -453,7 +459,7 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::PaleoLatitudeEntry::interpolate
 	const double palat = other_younger.palat + (delta_palat / delta_age) * rel_age;
 	const double palat_max = other_younger.palat_max + (delta_palat_max / delta_age) * rel_age;
 
-	PaleoLatitudeEntry res = PaleoLatitudeEntry(age_years, age_years, age_years, palat_min, palat, palat_max, NULL, NULL);
+	PaleoLatitudeEntry res = PaleoLatitudeEntry(age_years, age_years, age_years, palat_min, palat, palat_max, other_younger.computed_using_plate_id);
 	res.is_interpolated = true;
 	return res;
 }
@@ -522,7 +528,7 @@ void PaleoLatitude::writeKML(const string& filename) {
 
 void PaleoLatitude::writeCSV(ostream& output_stream) {
 	_requireResult();
-	output_stream << "age;latitude;lower bound;upper bound;comments" << endl;
+	output_stream << "age;latitude;lower bound;upper bound;interpolated;relative_to" << endl;
 	output_stream.setf(ios::fixed, ios::floatfield);
 
 	for (PaleoLatitudeEntry entry : _result){
@@ -532,7 +538,9 @@ void PaleoLatitude::writeCSV(ostream& output_stream) {
 		output_stream.precision(5);
 		output_stream << entry.palat << ";" << entry.palat_min << ";" << entry.palat_max << ";";
 
-		if (entry.is_interpolated) output_stream << "(interpolated)";
+		output_stream << (entry.is_interpolated ? "1" : "0") << ";";
+
+		if (entry.computed_using_plate_id > 0) output_stream << entry.computed_using_plate_id;
 
 		output_stream << endl;
 	}
@@ -594,9 +602,9 @@ bool PaleoLatitude::PaleoLatitudeEntry::compareByAge(const PaleoLatitudeEntry& a
 		// Entries that were computed relative to Africa come first. This makes sure that
 		// the youngest paleolatitude entries (which are all computed relative to Africa)
 		// come first, before relative movement to other plates is considered (for older ages).
-		if (a.euler_data != NULL && b.euler_data != NULL){
-			if (a.euler_data->rotation_rel_to_plate_id == 701) return true;
-			if (b.euler_data->rotation_rel_to_plate_id == 701) return false;
+		if (a.computed_using_plate_id > 0 && b.computed_using_plate_id > 0){
+			if (a.computed_using_plate_id == 701) return true;
+			if (b.computed_using_plate_id == 701) return false;
 		}
 	}
 	return (a.age_years < b.age_years);

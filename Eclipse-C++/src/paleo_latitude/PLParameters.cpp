@@ -60,6 +60,7 @@ bool PLParameters::validate(string& err_msg) const {
 		}
 	}
 
+	// TODO: we should be able to compute without range!
 	if (age >= 0 && age_pm < 0 && age_min < 0 && age_max < 0){
 		// No age bounds specified
 		err_msg = "Error in input parameters: no age bounds specified (through age-min/age-max, or age-pm)";

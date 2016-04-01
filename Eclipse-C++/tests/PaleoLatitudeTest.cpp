@@ -149,11 +149,14 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 		string computed_plate_name = "";
 		PlateDataTest::testLocation(entry.latitude, entry.longitude, entry.expected_plate_id, entry.expected_plate_name, computed_plate_id, computed_plate_name);
 
+		cout << "  -> plate: " << computed_plate_name << " (" << computed_plate_id << ")";
+
 		if (entry.empty(TestEntry::TEST_AGE_LOWERBOUND) && entry.empty(TestEntry::TEST_AGE_UPPERBOUND) && entry.empty(TestEntry::TEST_AGE)){
 			// Test does not specify age data - do not test paleolatitude
-			cout << "  -> plate: " << computed_plate_name << " (" << computed_plate_id << "). Paleolatitude not computed as part of test." << endl;
+			cout << ". Paleolatitude not computed as part of test." << endl;
 			continue;
 		}
+		cout << endl;
 
 
 		vector<string> euler_data_csvs;
@@ -190,26 +193,37 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 
 			PaleoLatitude::PaleoLatitudeEntry res = pl.getPaleoLatitude();
 			stringstream res_details;
-			res_details << "plate: " << computed_plate_name << " (" << computed_plate_id << ")";
+			res_details << "  -> lower/paleolatitude/upper: ";
 
-			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE)){
-				ASSERT_NEAR(entry.expected_paleolatitude, res.palat, 0.001) << "Unexpected paleolatitude (using " << entry.euler_data << ", " << entry.apwp_data << ")";
-				res_details << ", paleolatitude: " << res.palat;
-			}
 
 			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_LOWERBOUND)){
 				ASSERT_LE(entry.expected_paleolatitude_lowerbound, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
-				res_details << ", lower bound: " << res.palat_min;
+				res_details << res.palat_min;
+			} else {
+				res_details << "-";
 			}
+			res_details << "/";
+
+			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE)){
+				ASSERT_NEAR(entry.expected_paleolatitude, res.palat, 0.001) << "Unexpected paleolatitude (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+				res_details << res.palat;
+			} else {
+				res_details << "-";
+			}
+			res_details << "/";
+
+
 
 			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_UPPERBOUND)){
 				ASSERT_GE(entry.expected_paleolatitude_upperbound, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
-				res_details << ", upper bound: " << res.palat_max;
+				res_details << res.palat_max;
+			} else {
+				res_details << "-";
 			}
 
-			res_details << " (using " << pl_params->input_euler_rotation_csv << " and " << pl_params->input_apwp_csv << ")";
+			res_details << " (using " << pl_params->input_euler_rotation_csv << ", " << pl_params->input_apwp_csv << ")";
 
-			cout << "  -> " << res_details.str() << endl;
+			cout << res_details.str() << endl;
 
 			delete pl_params;
 		}

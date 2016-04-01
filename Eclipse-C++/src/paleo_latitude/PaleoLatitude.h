@@ -55,9 +55,9 @@ class PaleoLatitude {
 
 public:
 	struct PaleoLatitudeEntry {
-		PaleoLatitudeEntry() : age_years_lower_bound(0), age_years(0), age_years_upper_bound(0), palat_min(0), palat(0), palat_max(0), euler_data(NULL), apwp_data(NULL) {}
-		PaleoLatitudeEntry(unsigned long age_years_lower_bound_, unsigned long age_years_, unsigned long age_years_upper_bound_, double palat_min_, double palat_, double palat_max_, const PLEulerPolesReconstructions::EPEntry* euler_data_, const PLPolarWanderPaths::PWPEntry* apwp_data_) :
-			age_years_lower_bound(age_years_lower_bound_), age_years(age_years_), age_years_upper_bound(age_years_upper_bound_), palat_min(palat_min_), palat(palat_), palat_max(palat_max_), euler_data(euler_data_), apwp_data(apwp_data_){}
+		PaleoLatitudeEntry() : age_years_lower_bound(0), age_years(0), age_years_upper_bound(0), palat_min(0), palat(0), palat_max(0), computed_using_plate_id(0) {}
+		PaleoLatitudeEntry(unsigned long age_years_lower_bound_, unsigned long age_years_, unsigned long age_years_upper_bound_, double palat_min_, double palat_, double palat_max_, unsigned int computed_using_plate_id_) :
+			age_years_lower_bound(age_years_lower_bound_), age_years(age_years_), age_years_upper_bound(age_years_upper_bound_), palat_min(palat_min_), palat(palat_), palat_max(palat_max_), computed_using_plate_id(computed_using_plate_id_){}
 
 		string to_string();
 		static PaleoLatitudeEntry interpolate(const PaleoLatitudeEntry& other_younger, const PaleoLatitudeEntry& other_older, unsigned long age_years);
@@ -72,14 +72,11 @@ public:
 		bool is_interpolated = false;
 
 		/**
-		 * Euler rotation data entry used to compute this paleolatitude
+		 * Stores the ID of the plate that was used for the computation of this entry. Usually 701
+		 * (especially for younger ages), but Euler rotation might have been carried out relative
+		 * to a different plate for older ages.
 		 */
-		const PLEulerPolesReconstructions::EPEntry* euler_data = NULL;
-
-		/**
-		 * Polar wander path data entry used to compute this paleolatitude
-		 */
-		const PLPolarWanderPaths::PWPEntry* apwp_data = NULL;
+		unsigned int computed_using_plate_id;
 	};
 
 	PaleoLatitude();
