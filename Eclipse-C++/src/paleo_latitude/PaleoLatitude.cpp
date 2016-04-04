@@ -222,6 +222,7 @@ const PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRa
 	const double phi_p  = pwp_entry->longitude;
 	const double phi_p_rad = _deg2rad(phi_p);
 	const double a95 = pwp_entry->a95;
+	const bool compute_bounds = (a95 > 0.0000001);
 
 	const double theta_e = 90 - lambda_e;		// colatitude of Euler pole
 	const double theta_e_rad = _deg2rad(theta_e);
@@ -230,7 +231,7 @@ const PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRa
 
 	__IF_DEBUG(Logger::debug << "λ_s = " << lambda_s << " (" << lambda_s_rad << "), φ_s = " << phi_s << " (" << phi_s_rad << "), age = " << age_myr << " (Myr)" << endl;)
 	__IF_DEBUG(Logger::debug << "λ_E = " << lambda_e << " (" << lambda_e_rad << "), φ_E = " << phi_e << " (" << phi_e_rad << "), Ω = " << omega << " (" << omega_rad << ")" << endl;)
-	__IF_DEBUG(Logger::debug << "λ_p = " << lambda_p << " (" << lambda_p_rad << "), φ_p = " << phi_p << " (" << phi_p_rad << "), A95 = " << a95 << endl;)
+	__IF_DEBUG(Logger::debug << "λ_p = " << lambda_p << " (" << lambda_p_rad << "), φ_p = " << phi_p << " (" << phi_p_rad << "), A95 = " << a95 << (compute_bounds ? "" : " (n/a)") <<  endl;)
 	__IF_DEBUG(Logger::debug << "θ_E = " << theta_e << " (" << theta_e_rad << "), θ_p = " << theta_p << " (" << theta_p_rad << ")" << endl;)
 
 	// Unit vectors
@@ -354,18 +355,29 @@ const PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRa
 	const double lambda_rad = atan(lambda_numerator / lambda_denominator);
 
 	// Uncertainty in paleolatitude
-	const double delta_i = a95 * 2.0 / (1 + 3 * pow(cos(0.5*M_PI - lambda_rad), 2.0));
-	const double delta_i_rad = _deg2rad(delta_i);
-	__IF_DEBUG(Logger::debug << "Λ = " << lambda_rad << " (radians), Δ_I = " << delta_i << " degrees, Δ_I = " << delta_i_rad << " radians" << endl;)
+	double lambda_min_rad, lambda_max_rad;
 
-	// Upper and lower bounds for paleolatitude
+	if (compute_bounds){
+		// A95 data available for computation of error bounds
+		const double delta_i = a95 * 2.0 / (1 + 3 * pow(cos(0.5*M_PI - lambda_rad), 2.0));
+		const double delta_i_rad = _deg2rad(delta_i);
+		__IF_DEBUG(Logger::debug << "Λ = " << lambda_rad << " (radians), Δ_I = " << delta_i << " degrees, Δ_I = " << delta_i_rad << " radians" << endl;)
 
-	// Inclination of geomagnetic field (I)
-	const double field_incl_rad = atan((2 * lambda_numerator) / lambda_denominator);
-	__IF_DEBUG(Logger::debug << "I = " << field_incl_rad << " (inclination of geomagnetic field in radians)" << endl;)
+		// Upper and lower bounds for paleolatitude
 
-	const double lambda_min_rad = atan(0.5 * tan(field_incl_rad - delta_i_rad));
-	const double lambda_max_rad = atan(0.5 * tan(field_incl_rad + delta_i_rad));
+		// Inclination of geomagnetic field (I)
+		const double field_incl_rad = atan((2 * lambda_numerator) / lambda_denominator);
+		__IF_DEBUG(Logger::debug << "I = " << field_incl_rad << " (inclination of geomagnetic field in radians)" << endl;)
+
+		lambda_min_rad = atan(0.5 * tan(field_incl_rad - delta_i_rad));
+		lambda_max_rad = atan(0.5 * tan(field_incl_rad + delta_i_rad));
+	} else {
+		// No uncertainty bounds computable due to lack of A95 info
+		__IF_DEBUG(Logger::debug << "not computing error bounds on paleolatitude due to lack of data" << endl;)
+
+		lambda_min_rad = lambda_rad;
+		lambda_max_rad = lambda_rad;
+	}
 
 	const double lambda = _rad2deg(lambda_rad);
 
