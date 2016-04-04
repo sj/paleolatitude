@@ -22,9 +22,9 @@ Sydney,-33.859972,151.209444,801,Australia,,,,,,,,
 New Delhi,28.613889,77.208889,501,India,,0,200,,,,-63,32
 Antananarivo (Madagascar),-18.933333,47.516667,702,Madagascar,,0,200,,,,-56,-16
 New York,40.7127,-74.0059,199,Alleghanian North America,,,,,,,,
-Siberia,58,106,401,Siberia,10,,,,,60.27981793,58.5,62.15
-Siberia,58,106,401,Siberia,100,,,,,63.6144750172,60.38,66.87
-Siberia,58,106,401,Siberia,200,,,,,86.4493665703,83.65,89.3
-Siberia,58,106,401,Siberia,300,,,,,52.0430009769,39.3,54.92
-Siberia,58,106,401,Siberia,400,,,,,26.5084192607,,
-Siberia,58,106,401,Siberia,500,,,,,-9.8711485346,,
+Siberia,58,106,401,Siberia,10,,,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,60.27981793,58.5,62.15
+Siberia,58,106,401,Siberia,100,,,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,63.6144750172,60.38,66.98
+Siberia,58,106,401,Siberia,200,,,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,86.4493665703,83.65,89.3
+Siberia,58,106,401,Siberia,300,,,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,52.0430009769,49.3,54.92
+Siberia,58,106,401,Siberia,400,,,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,26.5084192607,,
+Siberia,58,106,401,Siberia,500,,,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,-9.8711485346,,
