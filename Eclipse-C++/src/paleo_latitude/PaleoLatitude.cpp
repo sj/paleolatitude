@@ -93,15 +93,17 @@ bool PaleoLatitude::compute(){
 	const double age_myr = _params->age;
 	const double age_max_myr = _params->getMaxAge();
 	const double age_min_myr = _params->getMinAge();
-	const unsigned long age_min_years = _params->getMinAgeInYears();
-	const unsigned long age_max_years = _params->getMaxAgeInYears();
+	const long age_min_years = _params->getMinAgeInYears();
+	const long age_max_years = _params->getMaxAgeInYears();
 
 	// Read the relevant ages from the Euler rotations table
 	vector<unsigned int> compute_ages;
 	if (_params->all_ages){
 		compute_ages = _euler->getRelevantAges(_plate, 0, 99999);
-	} else {
+	} else if (age_min_myr >= 0 && age_max_myr >= 0) {
 		compute_ages = _euler->getRelevantAges(_plate, age_min_myr, age_max_myr);
+	} else {
+		compute_ages = _euler->getRelevantAges(_plate, age_myr, age_myr);
 	}
 
 	if (compute_ages.size() == 0){
@@ -491,12 +493,9 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::getPaleoLatitude() const {
 	aggr.age_years = 99999; // placeholder to trigger later initialisation
 
 	for (PaleoLatitudeEntry entry : _result){
-		if (entry.age_years < _params->getMinAgeInYears()) continue;
-		if (entry.age_years > _params->getMaxAgeInYears()) break;
-
 		if (aggr.age_years == 99999){
 			aggr = entry; // initialise with useful values
-			aggr.age_years = 0;
+			aggr.age_years = -99999;
 			aggr.palat = 0;
 		}
 

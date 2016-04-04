@@ -55,7 +55,7 @@ class PaleoLatitude {
 
 public:
 	struct PaleoLatitudeEntry {
-		PaleoLatitudeEntry() : age_years_lower_bound(0), age_years(0), age_years_upper_bound(0), palat_min(0), palat(0), palat_max(0), computed_using_plate_id(0) {}
+		PaleoLatitudeEntry() : age_years_lower_bound(-1), age_years(-1), age_years_upper_bound(-1), palat_min(-9999), palat(-9999), palat_max(-9999), computed_using_plate_id(0) {}
 		PaleoLatitudeEntry(unsigned long age_years_lower_bound_, unsigned long age_years_, unsigned long age_years_upper_bound_, double palat_min_, double palat_, double palat_max_, unsigned int computed_using_plate_id_) :
 			age_years_lower_bound(age_years_lower_bound_), age_years(age_years_), age_years_upper_bound(age_years_upper_bound_), palat_min(palat_min_), palat(palat_), palat_max(palat_max_), computed_using_plate_id(computed_using_plate_id_){}
 
@@ -66,7 +66,7 @@ public:
 
 		static bool compareByAge(const PaleoLatitudeEntry& a, const PaleoLatitudeEntry& b);
 
-		unsigned long age_years_lower_bound, age_years, age_years_upper_bound;
+		long age_years_lower_bound, age_years, age_years_upper_bound;
 
 		double palat_min, palat, palat_max;
 		bool is_interpolated = false;

@@ -181,13 +181,13 @@ int main(int argc, char* argv[]) {
 		PaleoLatitude::PaleoLatitudeEntry res = pl->getPaleoLatitude();
 
 		cout << "The paleolatitude of site (" << pl_params->site_latitude << "," << pl_params->site_longitude << ") ";
-		if (res.age_years > 0 && res.palat > 0.001){
+		if (res.age_years > 0 && res.palat > -90.1){
 			// Specific age available in results data
 			cout << "at age " << (res.age_years / 1000000.0) << " Myr is: ";
 			cout << res.palat;
 			cout << " (bounds: [" << res.palat_min << "," << res.palat_max << "])";
 
-			if (res.age_years != res.age_years_lower_bound || res.age_years != res.age_years_upper_bound){
+			if ((res.age_years != res.age_years_lower_bound || res.age_years != res.age_years_upper_bound) && res.age_years_lower_bound >= 0 && res.age_years_upper_bound >= 0){
 				// Result contains bound based on an age range with min/max other than requested age
 				cout << " for age range [" << (res.age_years_lower_bound / 1000000.0) << "," << (res.age_years_upper_bound / 1000000.0) << "] Myr)";
 			} // else: bounds are specifically for requested age

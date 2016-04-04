@@ -60,13 +60,6 @@ bool PLParameters::validate(string& err_msg) const {
 		}
 	}
 
-	// TODO: we should be able to compute without range!
-	if (age >= 0 && age_pm < 0 && age_min < 0 && age_max < 0){
-		// No age bounds specified
-		err_msg = "Error in input parameters: no age bounds specified (through age-min/age-max, or age-pm)";
-		return false;
-	}
-
 	if (all_ages && (age >= 0 || age_max >= 0 || age_min >= 0 || age_pm >= 0)){
 		err_msg = err_msg_one_of_three;
 		return false;
@@ -82,7 +75,6 @@ bool PLParameters::validate(string& err_msg) const {
 		return false;
 	}
 
-
 	return true;
 }
 
@@ -97,17 +89,17 @@ double PLParameters::getMinAge() const {
 	return age_min >= 0 ? age_min : (age - age_pm);
 }
 
-unsigned long paleo_latitude::PLParameters::getMinAgeInYears() const {
-	return static_cast<unsigned long>(round(getMinAge() * 1000000));
+long paleo_latitude::PLParameters::getMinAgeInYears() const {
+	return static_cast<long>(round(getMinAge() * 1000000));
 }
 
-unsigned long paleo_latitude::PLParameters::getMaxAgeInYears() const {
-	return static_cast<unsigned long>(round(getMaxAge() * 1000000));
+long paleo_latitude::PLParameters::getMaxAgeInYears() const {
+	return static_cast<long>(round(getMaxAge() * 1000000));
 }
 
-unsigned long paleo_latitude::PLParameters::getAgeInYears() const {
+long paleo_latitude::PLParameters::getAgeInYears() const {
 	if (!this->hasAge()) throw Exception("no age specified - cannot compute age in Myr");
-	return static_cast<unsigned long>(round(age * 1000000));
+	return static_cast<long>(round(age * 1000000));
 }
 
 bool PLParameters::hasAge() const {
