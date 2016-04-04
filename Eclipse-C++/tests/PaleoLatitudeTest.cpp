@@ -59,7 +59,7 @@ TEST_F(PaleoLatitudeTest, TestParameterValidation){
 	ASSERT_FALSE(pl_params->validate()) << "Parameter validation should have failed: both all-ages and a specific age requested";
 
 	pl_params->all_ages = false;
-	ASSERT_FALSE(pl_params->validate()) << "Parameter validation should have failed: age specified, but without min-age and max-age, or age-pm";
+	ASSERT_TRUE(pl_params->validate()) << "Parameter validation should have succeeded: age specified, but without min-age and max-age, or age-pm";
 
 	pl_params->age_min = 70;
 	pl_params->age_max = 110;
