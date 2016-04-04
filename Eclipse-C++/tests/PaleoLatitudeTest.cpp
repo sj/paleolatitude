@@ -197,7 +197,6 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 
 
 			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_LOWERBOUND)){
-				ASSERT_LE(entry.expected_paleolatitude_lowerbound, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
 				res_details << res.palat_min;
 			} else {
 				res_details << "-";
@@ -205,7 +204,6 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 			res_details << "/";
 
 			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE)){
-				ASSERT_NEAR(entry.expected_paleolatitude, res.palat, 0.001) << "Unexpected paleolatitude (using " << entry.euler_data << ", " << entry.apwp_data << ")";
 				res_details << res.palat;
 			} else {
 				res_details << "-";
@@ -215,7 +213,6 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 
 
 			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_UPPERBOUND)){
-				ASSERT_GE(entry.expected_paleolatitude_upperbound, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
 				res_details << res.palat_max;
 			} else {
 				res_details << "-";
@@ -224,6 +221,18 @@ TEST_F(PaleoLatitudeTest, TestLocationsFromCSV){
 			res_details << " (using " << pl_params->input_euler_rotation_csv << ", " << pl_params->input_apwp_csv << ")";
 
 			cout << res_details.str() << endl;
+
+			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE)){
+				ASSERT_NEAR(entry.expected_paleolatitude, res.palat, 0.001) << "Unexpected paleolatitude (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+			}
+
+			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_LOWERBOUND)){
+				ASSERT_LE(entry.expected_paleolatitude_lowerbound, res.palat_min) << "Unexpected location paleolatitude lower bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+			}
+
+			if (!entry.empty(TestEntry::EXPECTED_PALEOLATITUDE_UPPERBOUND)){
+				ASSERT_GE(entry.expected_paleolatitude_upperbound, res.palat_max) << "Unexpected location paleolatitude upper bound (using " << entry.euler_data << ", " << entry.apwp_data << ")";
+			}
 
 			delete pl_params;
 		}
