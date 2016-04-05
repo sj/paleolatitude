@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cmath>
 #include "../util/Exception.h"
+#include "PaleoLatitude.h"
 using namespace paleo_latitude;
 
 bool PLParameters::validate() const {
@@ -65,12 +66,12 @@ bool PLParameters::validate(string& err_msg) const {
 		return false;
 	}
 
-	if (site_latitude > 90.001 || site_latitude < -90.001){
+	if (!PaleoLatitude::is_valid_latitude(site_latitude)){
 		err_msg = "Invalid latitude specified. Expecting a latitude in the range [-90, 90]";
 		return false;
 	}
 
-	if (site_longitude > 180.001 || site_longitude < -180.001){
+	if (!PaleoLatitude::is_valid_longitude(site_longitude)){
 		err_msg = "Invalid site longitude specified. Expecting a longitude in the range [-180,180]";
 		return false;
 	}

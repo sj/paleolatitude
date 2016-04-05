@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <tuple>
 #include <iostream>
+#include <cmath>
 
 #include "PLPlate.h"
 #include "PLPolarWanderPaths.h"
@@ -142,6 +143,14 @@ public:
 	 * Returns the version number of the model
 	 */
 	static string getVersion();
+
+	template<class T> static bool is_valid_latitude(T lat) {
+		return abs(lat) < 90.00000001;
+	}
+
+	template<class T> static bool is_valid_longitude(T lon) {
+		return abs(lon) < 180.00000001;
+	}
 
 private:
 	PLPolarWanderPaths* _pwp = NULL;

@@ -198,6 +198,17 @@ const vector<const PLPlate*> paleo_latitude::PLPlates::getPlates() const {
 }
 
 /**
+ * Returns the name of a plate based on the given ID
+ */
+string paleo_latitude::PLPlates::getPlateName(unsigned int plate_id) const {
+	for (const PLPlate* plate : _plates){
+		if (plate->getId() == plate_id) return plate->getName();
+	}
+
+	return "";
+}
+
+/**
  * Counts the actual number of plates (rather than the plate parts, which are
  * returned by #getPlates()). In other words: counts the number of unique plate IDs
  */

@@ -353,9 +353,10 @@ const PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRa
 	const double lambda_denominator = sqrt(1 - pow(lambda_numerator, 2.0));
 
 	const double lambda_rad = atan(lambda_numerator / lambda_denominator);
+	const double lambda = _rad2deg(lambda_rad);
 
 	// Uncertainty in paleolatitude
-	double lambda_min_rad, lambda_max_rad;
+	double lambda_min, lambda_max;
 
 	if (compute_bounds){
 		// A95 data available for computation of error bounds
@@ -369,48 +370,47 @@ const PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::_calculatePaleolatitudeRa
 		const double field_incl_rad = atan((2 * lambda_numerator) / lambda_denominator);
 		__IF_DEBUG(Logger::debug << "I = " << field_incl_rad << " (inclination of geomagnetic field in radians)" << endl;)
 
-		lambda_min_rad = atan(0.5 * tan(field_incl_rad - delta_i_rad));
-		lambda_max_rad = atan(0.5 * tan(field_incl_rad + delta_i_rad));
+		const double lambda_min_rad = atan(0.5 * tan(field_incl_rad - delta_i_rad));
+		const double lambda_max_rad = atan(0.5 * tan(field_incl_rad + delta_i_rad));
+
+
+		lambda_min = _rad2deg(lambda_min_rad);
+		lambda_max = _rad2deg(lambda_max_rad);
+
+
+		__IF_DEBUG(Logger::debug << "Λ_min = " << lambda_min_rad << ", Λ = " << lambda_rad << ", Λ_max = " << lambda_max_rad << " (radians)" << endl;)
+		__IF_DEBUG(Logger::debug << "Λ_min = " << lambda_min << ", Λ = " << lambda << ", Λ_max = " << lambda_max << " (degrees)" << endl;)
+
+
+		// Check whether either lambda_min or lambda_max is out of bounds, indicating that the lower or upper
+		// bound moved over a pole.
+		if (lambda_max < lambda || lambda_min > lambda){
+			// Either:
+			// Upper bound of paleolatitude moved up over the north pole, then down on the other side. The
+			// reported max value then looks like -85 (= 85 degrees on the other side)
+			// Or:
+			// Lower bound moved over the south pole, then up the other side. Resulting min is then
+			// 85, which should be -85.
+
+			Logger::info << "Applying correction for bounds over south pole: [" << lambda_min << "," << lambda_max << "] becomes ";
+			if (lambda < 0){
+				// Things went south on the south pole (ba dum tssh)
+				lambda_max = max(-abs(lambda_min), -abs(lambda_max));
+				lambda_min = -90;
+			} else {
+				// Things went wrong on north pole
+				lambda_min = min(abs(lambda_min), abs(lambda_max));
+				lambda_max = 90;
+			}
+
+			Logger::info << "[" << lambda_min << "," << lambda_max << "]" << endl;
+		}
 	} else {
 		// No uncertainty bounds computable due to lack of A95 info
 		__IF_DEBUG(Logger::debug << "not computing error bounds on paleolatitude due to lack of data" << endl;)
 
-		lambda_min_rad = lambda_rad;
-		lambda_max_rad = lambda_rad;
-	}
-
-	const double lambda = _rad2deg(lambda_rad);
-
-	double lambda_min = _rad2deg(lambda_min_rad);
-	double lambda_max = _rad2deg(lambda_max_rad);
-
-
-	__IF_DEBUG(Logger::debug << "Λ_min = " << lambda_min_rad << ", Λ = " << lambda_rad << ", Λ_max = " << lambda_max_rad << " (radians)" << endl;)
-	__IF_DEBUG(Logger::debug << "Λ_min = " << lambda_min << ", Λ = " << lambda << ", Λ_max = " << lambda_max << " (degrees)" << endl;)
-
-
-	// Check whether either lambda_min or lambda_max is out of bounds, indicating that the lower or upper
-	// bound moved over a pole.
-	if (lambda_max < lambda || lambda_min > lambda){
-		// Either:
-		// Upper bound of paleolatitude moved up over the north pole, then down on the other side. The
-		// reported max value then looks like -85 (= 85 degrees on the other side)
-		// Or:
-		// Lower bound moved over the south pole, then up the other side. Resulting min is then
-		// 85, which should be -85.
-
-		Logger::info << "Applying correction for bounds over south pole: [" << lambda_min << "," << lambda_max << "] becomes ";
-		if (lambda < 0){
-			// Things went south on the south pole (ba dum tssh)
-			lambda_max = max(-abs(lambda_min), -abs(lambda_max));
-			lambda_min = -90;
-		} else {
-			// Things went wrong on north pole
-			lambda_min = min(abs(lambda_min), abs(lambda_max));
-			lambda_max = 90;
-		}
-
-		Logger::info << "[" << lambda_min << "," << lambda_max << "]" << endl;
+		lambda_min = -99999;
+		lambda_max = -99999;
 	}
 
 	const unsigned long age_years = age_myr * 1000000;
@@ -444,7 +444,22 @@ void PaleoLatitude::printAbout() {
 string PaleoLatitude::PaleoLatitudeEntry::to_string() {
 	stringstream res;
 	double age_myr = (age_years / 1000000.0);
-	res << "PaleoLatitude for age " << age_myr << " (Myr): Λ_min = " << palat_min << ", Λ = " << palat << ", Λ_max " << palat_max;
+	res << "PaleoLatitude for age " << age_myr << " (Myr): ";
+
+	if (is_valid_latitude(palat_min)){
+		res << "Λ_min = " << palat_min << ", ";
+	} else {
+		res << "Λ_min = n/a, ";
+	}
+
+	res << "Λ = " << palat << ", ";
+
+	if (is_valid_latitude(palat_max)){
+		res << "Λ_max = " << palat_max;
+	} else {
+		res << "Λ_max = n/a";
+	}
+
 	if (is_interpolated){
 		res << " (interpolated)";
 	} else {
@@ -511,8 +526,11 @@ PaleoLatitude::PaleoLatitudeEntry PaleoLatitude::getPaleoLatitude() const {
 			aggr.palat = 0;
 		}
 
-		if (entry.palat_min < aggr.palat_min) aggr.palat_min = entry.palat_min;
-		if (entry.palat_max > aggr.palat_max) aggr.palat_max = entry.palat_max;
+		if (is_valid_latitude(entry.palat_min) && (entry.palat_min < aggr.palat_min || !is_valid_latitude(aggr.palat_min))) aggr.palat_min = entry.palat_min;
+		if (is_valid_latitude(entry.palat_max) && (entry.palat_max > aggr.palat_max || !is_valid_latitude(aggr.palat_max))) aggr.palat_max = entry.palat_max;
+		if (is_valid_latitude(entry.palat) && (entry.palat < aggr.palat_min || !is_valid_latitude(aggr.palat_min))) aggr.palat_min = entry.palat;
+		if (is_valid_latitude(entry.palat) && (entry.palat > aggr.palat_max || !is_valid_latitude(aggr.palat_max))) aggr.palat_max = entry.palat;
+
 		if (entry.age_years_lower_bound < aggr.age_years_lower_bound) aggr.age_years_lower_bound = entry.age_years_lower_bound;
 		if (entry.age_years_upper_bound > aggr.age_years_upper_bound) aggr.age_years_upper_bound = entry.age_years_upper_bound;
 
@@ -547,11 +565,24 @@ void PaleoLatitude::writeCSV(ostream& output_stream) {
 		output_stream << entry.getAgeInMYR() << ";";
 
 		output_stream.precision(5);
-		output_stream << entry.palat << ";" << entry.palat_min << ";" << entry.palat_max << ";";
+		output_stream << entry.palat << ";";
+
+		if (is_valid_latitude(entry.palat_min)) output_stream << entry.palat_min;
+		output_stream << ";";
+
+		if (is_valid_latitude(entry.palat_max)) output_stream << entry.palat_max;
+		output_stream << ";";
 
 		output_stream << (entry.is_interpolated ? "1" : "0") << ";";
 
-		if (entry.computed_using_plate_id > 0) output_stream << entry.computed_using_plate_id;
+		if (entry.computed_using_plate_id > 0){
+			const string plate_name = _plates->getPlateName(entry.computed_using_plate_id);
+			if (plate_name == ""){
+				output_stream << "Plate " << entry.computed_using_plate_id;
+			} else {
+				output_stream << plate_name << " (" << entry.computed_using_plate_id << ")";
+			}
+		}
 
 		output_stream << endl;
 	}

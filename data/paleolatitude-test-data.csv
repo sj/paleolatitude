@@ -1,7 +1,7 @@
 Test name,Latitude,Longitude,Expected plate ID,Expected plate name,Test Age,Test age lower bound,Test age upper bound,Euler data to use for test,APWP data to use for test,Expected paleolatitude,Expected paleolatitude lower bound,Expected paleolatitude upper bound
 Amsterdam,52.366667,4.9,315,Eurasia,,0,200,,,,20,60
 North America (<= 260ma),45,-100,101,North America,200,0,200,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,19.933,17,55
-North America (400ma),45,-100,101,North America,400,400,400,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,-34.6897,-34.6898,-34.6896
+North America (400ma),45,-100,101,North America,400,400,400,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,-34.6897,,
 North America (>= 260 ma),45,-100,101,North America,530,400,9999,data/euler-torsvik-2012-vandervoo-2015.csv,data/apwp-torsvik-2012-vandervoo-2015.csv,0.529744,-34.6898,0.53
 Capetown,-33.925278,18.423889,701,South Africa,,0,200,,,,-56,-21
 North American Plate,80.95241,-4.012213,101,North America,,,,,,,,
