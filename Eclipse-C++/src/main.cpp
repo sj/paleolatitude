@@ -38,48 +38,7 @@ void print_usage(bpo::options_description& cmdline_options_spec){
 	cout << cmdline_options_spec << endl;
 }
 
-
-/**
- * Runs unit tests (through Google Test framework) if one of the command-line parameters requests it. Terminates
- * after that with the exit code specified by the tests framework. Note that tests are only available in
- * Debug builds.
- */
-void runUnitTestsIfRequested(int argc, char* argv[]){
-	bool run_tests = false;
-	bool debug = false;
-
-	for (int i = 0; i < argc; i++){
-		const string arg = argv[i];
-		if (arg == "--run-unit-tests" || arg == "--run-tests" || arg == "run-tests" || arg == "runtests"){
-			run_tests = true;
-		} else if (arg == "--debug"){
-			debug = true;
-		}
-	}
-
-	if (run_tests){
-#ifndef __OPTIMIZE__
-		// Call Google Test
-		if (!debug){
-			Logger::debug.disable();
-			Logger::info.disable();
-		}
-
-		::testing::InitGoogleTest(&argc, argv);
-		const int test_result = RUN_ALL_TESTS();
-		exit(test_result);
-#else
-		cerr << "Error: unit tests are only available in Debug builds." << endl;
-		exit(1);
-#endif
-	} // else: don't run tests
-}
-
 int main(int argc, char* argv[]) {
-	// First and foremost: run unit tests when requested (will exit after running tests)
-	runUnitTestsIfRequested(argc, argv);
-
-
 	// Parameters to Paleolatitude model implementation
 	PLParameters* pl_params = new PLParameters();
 
@@ -108,6 +67,11 @@ int main(int argc, char* argv[]) {
 		("skip-about", "skips the header containing version and author information")
 		("log-level", bpo::value<unsigned int>()->default_value(2), "sets the log level (0 = only errors, ..., 4 = debug. Default: 2)");
 
+#ifndef __OPTIMIZE__
+	cmdline_params_spec.add_options()
+			("run-tests", "run unit tests (only available in non-optimised builds)");
+#endif
+
 	try {
 		bpo::store(bpo::parse_command_line(argc, argv, cmdline_params_spec), cmdline_params_values);
 		bpo::notify(cmdline_params_values);
@@ -133,6 +97,14 @@ int main(int argc, char* argv[]) {
 		__IF_DEBUG(if(disable_ll == 3) Logger::debug.disable();)
 	}
 
+#ifndef __OPTIMIZE__
+	// Run unit tests if requested (only available in debug builds - Release builds do not depend on Google Test)
+	if (cmdline_params_values.count("run-tests")){
+		::testing::InitGoogleTest(&argc, argv);
+		const int test_result = RUN_ALL_TESTS();
+		exit(test_result);
+	}
+#endif
 
 	pl_params->all_ages = (cmdline_params_values.count("all-ages") > 0);
 
