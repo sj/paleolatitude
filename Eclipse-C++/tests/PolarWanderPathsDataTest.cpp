@@ -23,8 +23,8 @@ const string PolarWanderPathsDataTest::TORSVIK_VANDERVOO_CSV = "data/apwp-torsvi
 // Make sure the order of these files matches the order of files in EulerPolesDataTest.h:
 const array<string, 3> PolarWanderPathsDataTest::CSV_FILES = {
 		TORSVIK_VANDERVOO_CSV,
-		"data/apwp-besse-courtillot-2002.csv",
-		"data/apwp-kent-irving-2010.csv"
+		"data/apwp-besse-courtillot-2002-vandervoo-2015.csv",
+		"data/apwp-kent-irving-2010-vandervoo-2015.csv"
 };
 
 
