@@ -36,7 +36,7 @@
 #include "PLPolarWanderPaths.h"
 #include "PLEulerPolesReconstructions.h"
 
-#define PALEOLATITUDE_VERSION "2.0-alpha"
+#define PALEOLATITUDE_VERSION "2.0"
 
 using namespace std;
 namespace bnu = boost::numeric::ublas;
