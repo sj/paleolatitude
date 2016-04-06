@@ -15,7 +15,7 @@
 using namespace std;
 using namespace paleo_latitude;
 
-const string EulerPolesDataTest::TORSVIK_VANDERVOO_CSV = "data/euler-torsvik-2012-vandervoo-2015.csv";
+const string EulerPolesDataTest::TORSVIK_VANDERVOO_CSV = "data/euler-torsvik-2012.csv";
 
 // All possible CSV files with Euler pole rotation parameters. Note: order of these
 // files should match the order in PolarWanderPathsDataTest.h!
