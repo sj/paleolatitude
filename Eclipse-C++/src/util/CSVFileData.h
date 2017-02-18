@@ -107,6 +107,9 @@ public:
 
 
 	CSVFileData() {}
+	CSVFileData(string sep_chars) {
+		_sep_chars = sep_chars;
+	}
 
 	const vector<EntryType>& getEntries() const {
 		return _data;
@@ -137,7 +140,7 @@ public:
 
 			EntryType csv_entry(this, line_no);
 
-			boost::split(values, line, boost::is_any_of(";,"));
+			boost::split(values, line, boost::is_any_of(_sep_chars));
 
 			if (values.size() != csv_entry.numColumns()){
 				if (lines_parsed > 0 || line_no >= 3){
@@ -174,6 +177,7 @@ private:
 	CSVFileData(const CSVFileData<EntryType>& other) = delete;
 	string _filename;
 	vector<EntryType> _data;
+	string _sep_chars = ";,";
 };
 
 };
