@@ -70,7 +70,8 @@ int main(int argc, char* argv[]) {
 #ifndef __OPTIMIZE__
 	cmdline_params_spec.add_options()
 			("run-tests", "run unit tests (only available in non-optimised builds)")
-			("gtest_catch_exceptions", bpo::value<string>(), "gtest unit test library flag");
+			("gtest_catch_exceptions", bpo::value<string>(), "gtest unit test library flag")
+			("gtest_filter", bpo::value<string>(), "gtest unit test library flag for running one or more specific test(s)");
 #endif
 
 	try {
