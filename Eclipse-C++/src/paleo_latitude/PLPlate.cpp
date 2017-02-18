@@ -35,6 +35,7 @@ string PLPlate::_filterPlateName(const string plate_name){
 		return plate_name;
 	}
 }
+
 /**
  * In exceptional circumstances, plates are fully contained within another plate. This
  * method tests whether that's the case. By checking whether the other plate's coordinates
