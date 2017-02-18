@@ -17,60 +17,90 @@
 using namespace std;
 using namespace paleo_latitude;
 
-
-TEST_F(PlateDataTest, TestNumberOfPlates){
-	// This test reads the number of plates to expect from plates.num, and verifies whether
-	// that's the number of plates found in the GPML/KML files
-
-	int expected_plate_count = -1;
-	int num_kml_plates = -1;
-	int num_gpml_plates = -1;
-
-	ifstream num_plates_file("data/plates.num");
-	ASSERT_TRUE(num_plates_file.is_open()) << "File 'plates.num' not readable - cannot verify plate count";
-
-	try {
-		string currline;
-		while (std::getline(num_plates_file, currline)){
-			boost::trim(currline);
-
-			if (currline.empty()) continue; // ignore empty lines
-
-			if (boost::starts_with(currline, "#")) continue; // ignore comment
-
-			// If it's not a comment, it should be a single number on a line on its own
-			istringstream(currline) >> expected_plate_count;
-
-			ASSERT_GT(expected_plate_count, 0) << "Invalid plate count provided in 'plates.num'";
-			break;
-		}
-		num_plates_file.close();
-	} catch (...){} // Exception not relevant
+/**
+ * Checks whether all plates are accounted for in the GPML and/or KML data file provided
+ * using 'expected-plates.csv'.
+ */
+TEST_F(PlateDataTest, TestExpectedPlatesInData){
+	CSVFileData<ExpectedPlatesEntry> expected_plates(";");
+	expected_plates.parseFile("data/expected-plates.csv");
 
 	PLPlates* plp_kml = NULL;
 	try {
-		plp_kml = PLPlates::readFromFile("data/plates.kml");
-		num_kml_plates = plp_kml->countRealNumberOfPlates();
+		string plates_file = "data/plates.kml";
+		plp_kml = PLPlates::readFromFile(plates_file);
+		_verifyPlates(plp_kml, plates_file, expected_plates);
 	} catch (...){} // No worries if file not readable - just use GPML
 
 	PLPlates* plp_gpml = NULL;
 	try {
-		plp_gpml = PLPlates::readFromFile("data/plates.gpml");
-		num_gpml_plates = plp_gpml->countRealNumberOfPlates();
+		string plates_file = "data/plates.gpml";
+		plp_gpml = PLPlates::readFromFile(plates_file);
+		_verifyPlates(plp_gpml, plates_file, expected_plates);
 	} catch (...){} // No worries if file not readable - just use KML
 
-	if (plp_kml != NULL && plp_gpml != NULL){
-		ASSERT_TRUE(num_kml_plates == num_gpml_plates) << "KML and GPML files do not agree on plate counts";
-	} else if (plp_kml == NULL && plp_gpml == NULL){
+	if (plp_kml == NULL && plp_gpml == NULL){
 		FAIL() << "Could not read plate data from KML or GPML file?" << endl;
 	}
 
-	ASSERT_GT(expected_plate_count, 0) << "No plate count provided in 'plates.num'";
-	if (plp_kml) ASSERT_EQ(expected_plate_count, num_kml_plates);
-	if (plp_gpml) ASSERT_EQ(expected_plate_count, num_gpml_plates);
-
 	delete plp_kml;
 	delete plp_gpml;
+}
+
+void PlateDataTest::_verifyPlates(const PLPlates* plplates, const string plates_file, const CSVFileData<ExpectedPlatesEntry>& expected_plates){
+	const vector<const PLPlate*> plates = plplates->getPlates();
+
+	// Check whether all plates have unique IDs. A plate may only be defined twice (with the same ID)
+	// if it is in fact the same plate that consists of two different parts
+	bool fail = false;
+	for (const PLPlate* plate1 : plates){
+		for (const PLPlate* plate2 : plates){
+			if (plate1->getId() == plate2->getId() && plate1->getName() != plate2->getName()){
+				fail = true;
+				cerr << "Data in '" << plates_file << "' contains two different plates with identical ID " << plate1->getId() << ": '" << plate1->getName() << "' and '" << plate2->getName() << "'\n";
+			}
+		}
+	}
+
+	// Check whether all expected plates are indeed found in the data file
+	for (ExpectedPlatesEntry exp : expected_plates.getEntries()){
+		bool matched = false;
+
+		for (const PLPlate* plate : plates){
+			if (exp.plate_id == plate->getId()){
+				if (exp.plate_name != plate->getName()){
+					fail = true;
+					cerr << "Plate with ID " << exp.plate_id << " was expected to have name '" << exp.plate_name << "', but is referred to as '" << plate->getName() << "' in '" << plates_file << "'\n";
+				}
+
+				matched = true;
+			}
+		}
+
+		if (!matched){
+			cerr << "Plate '" << exp.plate_name << "' (ID: " << exp.plate_id << ") not found in '" + plates_file + "'\n";
+			fail = true;
+		}
+	}
+
+	// Reverse check: whether all plates in the data file were expected. There may
+	// be plates that we were not expecting to see.
+	for (const PLPlate* plate : plates){
+		bool matched = false;
+
+		for (ExpectedPlatesEntry exp : expected_plates.getEntries()){
+			if (exp.plate_id == plate->getId()) matched = true;
+		}
+
+		if (!matched){
+			cerr << "Unexpected plate '" << plate->getName() << "' (ID: " << plate->getId() << ") encountered in '" + plates_file + "'\n";
+			fail = true;
+		}
+	}
+
+	if (fail) FAIL() << "Inconsistencies found in data file '" << plates_file << "'";
+
+	// All good.
 }
 
 string PlateDataTest::_normalisePlateName(const string plate_name) {
@@ -149,3 +179,18 @@ void PlateDataTest::testLocation(double lat, double lon, unsigned int expected_p
 	delete plp_kml;
 	delete plp_gpml;
 }
+
+
+void PlateDataTest::ExpectedPlatesEntry::set(unsigned int col_index, const string value, const string filename, unsigned int lineno){
+	// Column index 0: plate ID (uint)
+	// Column index 1: plate name
+	auto entries = _container->getEntries();
+
+	if (col_index == 0) this->parseString(value, this->plate_id);
+	if (col_index == 1)	this->plate_name = value;
+}
+
+size_t PlateDataTest::ExpectedPlatesEntry::numColumns() const {
+	return 2;
+}
+
