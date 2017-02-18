@@ -46,6 +46,8 @@ private:
 	const unsigned int _id;
 	const string _name;
 	vector<Coordinate>* _polygon_coordinates;
+
+	static string _filterPlateName(const string plate_name);
 };
 
 };

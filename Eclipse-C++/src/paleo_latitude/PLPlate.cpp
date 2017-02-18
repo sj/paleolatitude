@@ -6,7 +6,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
-
+#include <boost/algorithm/string/case_conv.hpp>
 
 
 #include <random>
@@ -22,11 +22,19 @@ using namespace paleo_latitude;
 using pugi::xml_document;
 
 PLPlate::PLPlate(unsigned int plate_id, string plate_name, vector<Coordinate>* polygon_coordinates) :
-				_id(plate_id), _name(plate_name), _polygon_coordinates(polygon_coordinates)
+				_id(plate_id), _name(PLPlate::_filterPlateName(plate_name)), _polygon_coordinates(polygon_coordinates)
 {
 	assert(_polygon_coordinates != NULL);
 }
 
+string PLPlate::_filterPlateName(const string plate_name){
+	string plate_name_lower = boost::to_lower_copy(plate_name);
+	if (plate_name_lower.find("unconstrained") != string::npos|| plate_name_lower.find("mobile") != string::npos){
+		return "mobile belt (unconstrained)";
+	} else {
+		return plate_name;
+	}
+}
 /**
  * In exceptional circumstances, plates are fully contained within another plate. This
  * method tests whether that's the case. By checking whether the other plate's coordinates
