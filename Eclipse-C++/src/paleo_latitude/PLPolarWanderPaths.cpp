@@ -61,7 +61,7 @@ const vector<PLPolarWanderPaths::PWPEntry>& PLPolarWanderPaths::getAllEntries() 
 
 
 void PLPolarWanderPaths::PWPEntry::set(unsigned int col_index, const string value, const string filename, unsigned int lineno){
-	// Column index 0: plage ID (uint)
+	// Column index 0: plate ID (uint)
 	// Column index 1: age (uint)
 	// Column index 2: a95 (uint)
 	// Column index 3: longitude (double)
