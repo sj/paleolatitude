@@ -59,7 +59,7 @@ void paleo_latitude::PLPlates::_readPlatesFromKML(const string& kml_filename) {
 	// Read plates.kml
 	string kml_data;
 
-	Logger::logInfo("Reading plate coordinate data from " + kml_filename + "...");
+	Logger::logInfo("Reading plate coordinate data from KML file " + kml_filename + "...");
 	if (!kmlbase::File::ReadFileToString(kml_filename, &kml_data)){
 		PLFileParseException plfe;
 		plfe << "Error importing plate polygons from KML file: read failed (" << kml_filename << ")";

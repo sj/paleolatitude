@@ -30,14 +30,19 @@ TEST_F(PlateDataTest, TestExpectedPlatesInData){
 		string plates_file = "data/plates.kml";
 		plp_kml = PLPlates::readFromFile(plates_file);
 		_verifyPlates(plp_kml, plates_file, expected_plates);
-	} catch (...){} // No worries if file not readable - just use GPML
+	} catch (...){
+		// No worries if file not readable - just use GPML
+		Logger::logWarn("Error reading KML data for test. Test will fail if GPML data is unavailable as well.");
+	}
 
 	PLPlates* plp_gpml = NULL;
 	try {
 		string plates_file = "data/plates.gpml";
 		plp_gpml = PLPlates::readFromFile(plates_file);
 		_verifyPlates(plp_gpml, plates_file, expected_plates);
-	} catch (...){} // No worries if file not readable - just use KML
+	} catch (...){
+		Logger::logWarn("Error reading GPML data for test. Test will fail if KML data is unavailable as well.");
+	} // No worries if file not readable - just use KML
 
 	if (plp_kml == NULL && plp_gpml == NULL){
 		FAIL() << "Could not read plate data from KML or GPML file?" << endl;
