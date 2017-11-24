@@ -8,6 +8,7 @@
 #ifndef PLEULERPOLESRECONSTRUCTIONS_H_
 #define PLEULERPOLESRECONSTRUCTIONS_H_
 #include <set>
+#include <vector>
 #include "../util/CSVFileData.h"
 
 namespace paleo_latitude {
