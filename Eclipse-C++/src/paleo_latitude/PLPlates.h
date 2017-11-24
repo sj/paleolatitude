@@ -27,7 +27,7 @@ public:
 	const vector<const PLPlate*> getPlates() const;
 	string getPlateName(unsigned int plate_id) const;
 
-	const int countRealNumberOfPlates() const;
+	int countRealNumberOfPlates() const;
 
 	static PLPlates* readFromFile(const string& filename);
 

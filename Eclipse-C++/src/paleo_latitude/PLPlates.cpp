@@ -212,7 +212,7 @@ string paleo_latitude::PLPlates::getPlateName(unsigned int plate_id) const {
  * Counts the actual number of plates (rather than the plate parts, which are
  * returned by #getPlates()). In other words: counts the number of unique plate IDs
  */
-const int paleo_latitude::PLPlates::countRealNumberOfPlates() const {
+int paleo_latitude::PLPlates::countRealNumberOfPlates() const {
 	set<int> unique_ids;
 	for (const PLPlate* plate : _plates) unique_ids.insert(plate->getId());
 	return unique_ids.size();
