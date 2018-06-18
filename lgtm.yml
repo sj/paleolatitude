@@ -3,3 +3,5 @@ extraction:
     index:
       build_command: "cd Eclipse-C++/Debug && make"
 
+queries:
+  include: "*"
