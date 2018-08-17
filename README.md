@@ -1,3 +1,5 @@
+[![Build Status](https://img.shields.io/badge/license-GPL-green.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
 # Model for paleolatitude.org
 See www.paleolatitude.org for more information
 
