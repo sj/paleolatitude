@@ -1,0 +1,5 @@
+*.d
+*.o
+Debug/PaleoLatitude
+Release/PaleoLatitude
+.settings
