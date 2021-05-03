@@ -1,0 +1,29 @@
+{
+  "name": "model-ts",
+  "version": "3.0.0",
+  "description": "Computational model for paleolatitude.org, written in TypeScript",
+  "main": "paleolatitude-model.js",
+  "dependencies": {
+    "commander": "^7.2.0",
+    "mathjs": "^9.3.2"
+  },
+  "devDependencies": {
+    "@types/mathjs": "^6.0.11",
+    "@types/node": "^15.0.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sj/paleolatitude.git"
+  },
+  "author": "Sebastiaan J. van Schaik",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/sj/paleolatitude/issues"
+  },
+  "homepage": "https://github.com/sj/paleolatitude#readme"
+}
